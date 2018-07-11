@@ -2,12 +2,11 @@
  * Abstract - Main JS
  *
  * ------------------------------------------------------------------- */
-
 (function ($) {
     "use strict";
     var $WIN = $(window);
     var PER_PAGE = 10;
-    var searchUrl = 'http://api.github.com/search/code?sort=indexed&order=desc';
+    var searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc';
     var repoExtn = 'repo:ZYallers/ZYaller+extension:md';
     var cfg = {
         defAnimation: "fadeInUp",    // default css animation
@@ -19,11 +18,11 @@
         //'http://acg.bakayun.cn/randbg.php',
         //'http://www.xwboke.cn/api/api.php',
         //'http://picsum.photos/320/480/?random',
-        'http://uploadbeta.com/api/pictures/random?key=推女郎',
-        'http://uploadbeta.com/api/pictures/random?key=车模',
-        'http://uploadbeta.com/api/pictures/random?key=性感',
-        'http://uploadbeta.com/api/pictures/random?key=Liuyan',
-        'http://uploadbeta.com/api/pictures/random?key=Computing'
+        'https://uploadbeta.com/api/pictures/random?key=推女郎',
+        'https://uploadbeta.com/api/pictures/random?key=车模',
+        'https://uploadbeta.com/api/pictures/random?key=性感',
+        'https://uploadbeta.com/api/pictures/random?key=Liuyan',
+        'https://uploadbeta.com/api/pictures/random?key=Computing'
     ];
     var introFilter = ['#', '>', '`', '<', '/', '*', '-'];
 
