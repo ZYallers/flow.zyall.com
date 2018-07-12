@@ -14,18 +14,27 @@
         statsDuration: 4000          // stats animation duration
     };
     var randimg = [
-        // 'http://source.unsplash.com/random',
+        '/images/lists-random/concert.jpg',
+        '/images/lists-random/lighthouse.jpg',
+        '/images/lists-random/ottawa-bokeh.jpg',
+        '/images/lists-random/shutterbug.jpg',
+        '/images/lists-random/usaf-rocket.jpg',
+        '/images/lists-random/work1.jpg',
+        '/images/lists-random/work2.jpg',
+        '/images/lists-random/work3.jpg',
+        'http://source.unsplash.com/random',
         //'http://acg.bakayun.cn/randbg.php',
         //'http://www.xwboke.cn/api/api.php',
         //'http://picsum.photos/320/480/?random',
+        'https://uploadbeta.com/api/pictures/random?key=Computing',
         'https://uploadbeta.com/api/pictures/random?key=推女郎',
         'https://uploadbeta.com/api/pictures/random?key=车模',
         'https://uploadbeta.com/api/pictures/random?key=性感',
-        'https://uploadbeta.com/api/pictures/random?key=Liuyan',
-        'https://uploadbeta.com/api/pictures/random?key=Computing'
+        'https://uploadbeta.com/api/pictures/random?key=Liuyan'
     ];
     var introFilter = ['#', '>', '`', '<', '/', '*', '-'];
     var completeItemCount = 0;
+    var itemsCount = 0;
     var imagesLoadedFlag = false;
 
     /**
@@ -185,10 +194,17 @@
         var items = lists['items'], len = items.length, $wrapper = $('.bricks-wrapper'), temp = $('#lists-item-template').html();
         for (var i = 0; i < len; i++) {
             (function (item, container, temp) {
+                // filter the static local images
+                var imgurl = randimg[Math.floor((Math.random() * randimg.length))];
+                if (imgurl.substring(0, 4) != 'http') {
+                    randimg = $.grep(randimg, function (value) {
+                        return value != imgurl;
+                    });
+                }
                 var obj = {
                     "sha": item['sha'],
                     "intro": "",
-                    "img": randimg[Math.floor((Math.random() * randimg.length))],
+                    "img": imgurl,
                     "link": item['html_url'],
                     "title": item['name'].slice(0, -3),
                     "meta": item['path'].split('/')[1]
@@ -254,6 +270,7 @@
             dataType: 'json',
             success: function (lists) {
                 if (lists || lists['incomplete_results'] === false) {
+                    itemsCount = lists['items'].length;
                     getItemsIntro(lists, success);
                 }
             },
@@ -374,7 +391,7 @@
     var ssMasonryResize = function () {
         window.masonryResizeTask = setInterval(function () {
             console.log('try masonry resize');
-            if (completeItemCount == perpage && imagesLoadedFlag) {
+            if (itemsCount > 0 && completeItemCount == itemsCount && imagesLoadedFlag) {
                 clearInterval(window.masonryResizeTask);
                 console.log('masonry resizeing');
                 $('.bricks-wrapper').masonry({
