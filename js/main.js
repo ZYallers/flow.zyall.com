@@ -5,7 +5,7 @@
 (function ($) {
     "use strict";
     var $WIN = $(window);
-    var PER_PAGE = 10;
+    var perpage = 10;
     var searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc';
     var repoExtn = 'repo:ZYallers/ZYaller+extension:md';
     var cfg = {
@@ -25,6 +25,8 @@
         'https://uploadbeta.com/api/pictures/random?key=Computing'
     ];
     var introFilter = ['#', '>', '`', '<', '/', '*', '-'];
+    var completeItemCount = 0;
+    var imagesLoadedFlag = false;
 
     /**
      *  Base64 encode / decode
@@ -141,12 +143,12 @@
     }
 
     var ssGetPagination = function (total) {
-        if (!(total > 0) || total <= PER_PAGE) {
+        if (!(total > 0) || total <= perpage) {
             return;
         }
 
         var $page = $('.pagination'), arr = [], query = getUrlParam('q'), meta = getUrlParam('m'), page = getUrlParam('page') || 1,
-            totalPage = Math.ceil(total / PER_PAGE), href = (query ? 'q=' + query : '') + (meta ? '&m=' + meta : '');
+            totalPage = Math.ceil(total / perpage), href = (query ? 'q=' + query : '') + (meta ? '&m=' + meta : '');
         href = href ? '?' + href + '&page=' : '?page=';
 
         if (page == 1) {
@@ -191,20 +193,24 @@
                     "title": item['name'].slice(0, -3),
                     "meta": item['path'].split('/')[1]
                 };
-                obj['img'] += (obj['img'].indexOf('?') == -1 ? '?' : '&') + 't=' + Math.floor(Math.random() * 1000000);
+                obj['img'] += (obj['img'].indexOf('?') == -1 ? '?' : '&') + '_=' + Math.floor(Math.random() * 1000000);
                 obj['metalink'] = searchUrl + '&q=path:tag/' + obj['meta'] + '+' + repoExtn;
                 obj['meta'] = obj['meta'].toUpperCase();
+
                 // append to contain.
                 container.append(microTemplate(temp, obj));
 
                 // update item image and intro.
                 setTimeout(function () {
                     $.ajax({
-                        url: item['git_url'],
-                        dataType: 'json',
                         async: true,
+                        timeout: 3000,
+                        dataType: 'json',
+                        url: item['git_url'],
                         complete: function (xhr, ts) {
-                            //console.log(item['sha']);
+                            completeItemCount++;
+                            console.log('completed item count: ' + completeItemCount, item['sha']);
+
                             var img = '', intro = '';
                             if (ts == 'success') {
                                 // get the item intro.
@@ -240,11 +246,11 @@
             meta = getUrlParam('m'),
             page = getUrlParam('page') || 1,
             query = (keyword || '') + '+path:tag' + (meta ? '/' + meta : ''),
-            api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + PER_PAGE;
+            api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + perpage;
         $.ajax({
             url: api,
-            timeout: 10000,
             async: true,
+            timeout: 10000,
             dataType: 'json',
             success: function (lists) {
                 if (lists || lists['incomplete_results'] === false) {
@@ -358,16 +364,27 @@
 
     /*	Masonry
     ------------------------------------------------------ */
-    var ssMasonryFolio = function () {
-        var containerBricks = $('.bricks-wrapper');
-        containerBricks.imagesLoaded(function () {
-            containerBricks.masonry({
-                itemSelector: '.entry',
-                columnWidth: '.grid-sizer',
-                percentPosition: true,
-                resize: true
-            });
+    var ssImageLoaded = function () {
+        $('.bricks-wrapper').imagesLoaded(function () {
+            console.log('images-loaded');
+            imagesLoadedFlag = true;
         });
+    };
+
+    var ssMasonryResize = function () {
+        window.masonryResizeTask = setInterval(function () {
+            console.log('try masonry resize');
+            if (completeItemCount == perpage && imagesLoadedFlag) {
+                clearInterval(window.masonryResizeTask);
+                console.log('masonry resizeing');
+                $('.bricks-wrapper').masonry({
+                    itemSelector: '.entry',
+                    columnWidth: '.grid-sizer',
+                    percentPosition: true,
+                    resize: true
+                });
+            }
+        }, 1000);
     };
 
     /* animate bricks
@@ -475,9 +492,6 @@
     (function ssInit() {
         ssPreloader(function () {
             ssGetGithubLists(function (lists) {
-                ssGetPagination(lists['total_count']);
-                ssMasonryFolio();
-                ssBricksAnimate();
                 iziToast.show({
                     theme: 'dark',
                     timeout: 3000,
@@ -487,6 +501,10 @@
                     progressBarColor: 'rgb(0, 255, 184)',
                     message: 'The data was successfully loaded.'
                 });
+                ssGetPagination(lists['total_count']);
+                ssBricksAnimate();
+                ssImageLoaded();
+                ssMasonryResize();
             },null,function (ts) {
                 if (ts == 'timeout') {
                     iziToast.error({
