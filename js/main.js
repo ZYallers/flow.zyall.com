@@ -14,18 +14,13 @@
         statsDuration: 4000          // stats animation duration
     };
     var randimg = [
-        '/images/lists-random/concert.jpg',
-        '/images/lists-random/lighthouse.jpg',
-        '/images/lists-random/ottawa-bokeh.jpg',
-        '/images/lists-random/shutterbug.jpg',
-        '/images/lists-random/usaf-rocket.jpg',
-        '/images/lists-random/work1.jpg',
-        '/images/lists-random/work2.jpg',
-        '/images/lists-random/work3.jpg',
+        '/images/random/work1.jpg',
+        '/images/random/work2.jpg',
+        '/images/random/work3.jpg',
+        '/images/random/concert.jpg',
+        '/images/random/shutterbug.jpg',
+        '/images/random/usaf-rocket.jpg',
         'http://source.unsplash.com/random',
-        //'http://acg.bakayun.cn/randbg.php',
-        //'http://www.xwboke.cn/api/api.php',
-        //'http://picsum.photos/320/480/?random',
         'https://uploadbeta.com/api/pictures/random?key=Computing',
         'https://uploadbeta.com/api/pictures/random?key=推女郎',
         'https://uploadbeta.com/api/pictures/random?key=车模',
@@ -33,9 +28,6 @@
         'https://uploadbeta.com/api/pictures/random?key=Liuyan'
     ];
     var introFilter = ['#', '>', '`', '<', '/', '*', '-'];
-    var completeItemCount = 0;
-    var itemsCount = 0;
-    var imagesLoadedFlag = false;
 
     /**
      *  Base64 encode / decode
@@ -192,6 +184,8 @@
 
     var getItemsIntro = function (lists, callback) {
         var items = lists['items'], len = items.length, $wrapper = $('.bricks-wrapper'), temp = $('#lists-item-template').html();
+        $.listItemsLength = len;
+        $.completeListItemsLength = 0;
         for (var i = 0; i < len; i++) {
             (function (item, container, temp) {
                 // filter the static local images
@@ -209,7 +203,7 @@
                     "title": item['name'].slice(0, -3),
                     "meta": item['path'].split('/')[1]
                 };
-                obj['img'] += (obj['img'].indexOf('?') == -1 ? '?' : '&') + '_=' + Math.floor(Math.random() * 1000000);
+                obj['img'] += (obj['img'].indexOf('?') == -1 ? '?' : '&') + 't=' + Math.floor(Math.random() * 1000000);
                 obj['metalink'] = searchUrl + '&q=path:tag/' + obj['meta'] + '+' + repoExtn;
                 obj['meta'] = obj['meta'].toUpperCase();
 
@@ -220,12 +214,12 @@
                 setTimeout(function () {
                     $.ajax({
                         async: true,
-                        timeout: 3000,
+                        timeout: 10000,
                         dataType: 'json',
                         url: item['git_url'],
                         complete: function (xhr, ts) {
-                            completeItemCount++;
-                            console.log('completed item count: ' + completeItemCount, item['sha']);
+                            $.completeListItemsLength++;
+                            console.log('complete lists items length: ' + $.completeListItemsLength, item['sha']);
 
                             var img = '', intro = '';
                             if (ts == 'success') {
@@ -270,7 +264,6 @@
             dataType: 'json',
             success: function (lists) {
                 if (lists || lists['incomplete_results'] === false) {
-                    itemsCount = lists['items'].length;
                     getItemsIntro(lists, success);
                 }
             },
@@ -383,25 +376,9 @@
     ------------------------------------------------------ */
     var ssImageLoaded = function () {
         $('.bricks-wrapper').imagesLoaded(function () {
-            console.log('images-loaded');
-            imagesLoadedFlag = true;
+            console.log('images loaded');
+            $.isImagesLoaded = true;
         });
-    };
-
-    var ssMasonryResize = function () {
-        window.masonryResizeTask = setInterval(function () {
-            console.log('try masonry resize');
-            if (itemsCount > 0 && completeItemCount == itemsCount && imagesLoadedFlag) {
-                clearInterval(window.masonryResizeTask);
-                console.log('masonry resizeing');
-                $('.bricks-wrapper').masonry({
-                    itemSelector: '.entry',
-                    columnWidth: '.grid-sizer',
-                    percentPosition: true,
-                    resize: true
-                });
-            }
-        }, 1000);
     };
 
     /* animate bricks
@@ -416,6 +393,29 @@
         $WIN.on('resize', function () {
             $('.animate-this').removeClass('animate-this animated fadeInUp');
         });
+    };
+
+    var ssMasonryResize = function () {
+        $.masonryResizeTimes = 0;
+        $.masonryResizeTask = setInterval(function () {
+            console.log('try masonry resize...', $.masonryResizeTimes);
+            $.masonryResizeTimes++;
+            if ($.masonryResizeTimes > 60) {
+                console.log('try masonry resize more than maximum');
+                clearInterval($.masonryResizeTask);
+            } else {
+                if ($.listItemsLength && $.isImagesLoaded && $.completeListItemsLength == $.listItemsLength) {
+                    clearInterval($.masonryResizeTask);
+                    $('.bricks-wrapper').masonry({
+                        itemSelector: '.entry',
+                        columnWidth: '.grid-sizer',
+                        percentPosition: true,
+                        resize: true
+                    });
+                    console.log('masonry resized');
+                }
+            }
+        }, 500);
     };
 
     /* Flex Slider

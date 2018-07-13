@@ -3,9 +3,7 @@
  *
  * ------------------------------------------------------------------- */
 
-/*
- * Roboto
-================================================================================ */
+/* Roboto * ================================================================================ */
 @font-face {
 	font-family: "roboto-light";
 	src: url("../fonts/roboto/roboto-light-webfont.woff2") format("woff2"), url("../fonts/roboto/roboto-light-webfont.woff") format("woff");
@@ -48,9 +46,7 @@
 	font-weight: normal;
 }
 
-/*
- * Montserrat
-================================================================================ */
+/* Montserrat * ================================================================================ */
 @font-face {
 	font-family: "montserrat-regular";
 	src: url("../fonts/montserrat/montserrat-regular-webfont.woff2") format("woff2"), url("../fonts/montserrat/montserrat-regular-webfont.woff") format("woff");
