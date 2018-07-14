@@ -4,35 +4,29 @@
  * ------------------------------------------------------------------- */
 (function ($) {
     "use strict";
-    var $WIN = $(window);
-    var perpage = 10;
-    var searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc';
-    var repoExtn = 'repo:ZYallers/ZYaller+extension:md';
-    var cfg = {
-        defAnimation: "fadeInUp",    // default css animation
-        scrollDuration: 800,           // smoothscroll duration
-        statsDuration: 4000          // stats animation duration
-    };
-    var randimg = [
-        '/images/random/work1.jpg',
-        '/images/random/work2.jpg',
-        '/images/random/work3.jpg',
-        '/images/random/concert.jpg',
-        '/images/random/shutterbug.jpg',
-        '/images/random/usaf-rocket.jpg',
-        'http://source.unsplash.com/random',
-        'https://uploadbeta.com/api/pictures/random?key=Computing',
-        'https://uploadbeta.com/api/pictures/random?key=推女郎',
-        'https://uploadbeta.com/api/pictures/random?key=车模',
-        'https://uploadbeta.com/api/pictures/random?key=性感',
-        'https://uploadbeta.com/api/pictures/random?key=Liuyan'
-    ];
-    var introFilter = ['#', '>', '`', '<', '/', '*', '-'];
+    var $WIN = $(window),
+        Cache = new WebStorageCache({storage: 'localStorage'}),
+        perpage = 10,
+        searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
+        repoExtn = 'repo:ZYallers/ZYaller+extension:md',
+        cfg = {
+            defAnimation: "fadeInUp",    // default css animation
+            scrollDuration: 800,           // smoothscroll duration
+            statsDuration: 4000          // stats animation duration
+        },
+        randimg = [
+            '/images/random/work1.jpg',
+            '/images/random/work2.jpg',
+            '/images/random/work3.jpg',
+            '/images/random/liberty.jpg',
+            '/images/random/concert.jpg',
+            '/images/random/shutterbug.jpg',
+            '/images/random/usaf-rocket.jpg',
+            'http://uploadbeta.com/api/pictures/random?key=推女郎'
+        ],
+        introFilter = ['#', '>', '`', '<', '/', '*', '-', '!'];
 
-    /**
-     *  Base64 encode / decode
-     *  http://www.webtoolkit.info/
-     **/
+    /** Base64 encode/decode see http://www.webtoolkit.info */
     var Base64 = {
         // private property
         _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
@@ -138,11 +132,13 @@
         }
     };
 
+    /** get url params */
     var getUrlParam = function (name) {
         var arr = window.location.search.substr(1).match(new RegExp("(^|&)" + name + "=([^&]*)(&|$)"));
         return arr != null ? arr[2] : null;
-    }
+    };
 
+    /** set pagination */
     var ssGetPagination = function (total) {
         if (!(total > 0) || total <= perpage) {
             return;
@@ -170,6 +166,7 @@
         $page.parent().fadeIn();
     };
 
+    /** lists item template html */
     var microTemplate = function (src, data) {
         // replace {{tags}} in source
         return src.replace(/\{\{([\w\-_\.]+)\}\}/gi, function (match, key) {
@@ -182,11 +179,12 @@
         });
     };
 
+    /** set lists item intro */
     var getItemsIntro = function (lists, callback) {
         var items = lists['items'], len = items.length, $wrapper = $('.bricks-wrapper'), temp = $('#lists-item-template').html();
-        $.listItemsLength = len;
-        $.completeListItemsLength = 0;
-        for (var i = 0; i < len; i++) {
+        $.itemCount = len;
+        $.reoadedItemCount = 0;
+        for (var cursor = 0; cursor < len; cursor++) {
             (function (item, container, temp) {
                 // filter the static local images
                 var imgurl = randimg[Math.floor((Math.random() * randimg.length))];
@@ -196,14 +194,10 @@
                     });
                 }
                 var obj = {
-                    "sha": item['sha'],
-                    "intro": "",
-                    "img": imgurl,
-                    "link": item['html_url'],
-                    "title": item['name'].slice(0, -3),
-                    "meta": item['path'].split('/')[1]
+                    "sha": item['sha'], "intro": "", "link": item['html_url'], "img": imgurl,
+                    "title": item['name'].slice(0, -3), "meta": item['path'].split('/')[1]
                 };
-                obj['img'] += (obj['img'].indexOf('?') == -1 ? '?' : '&') + 't=' + Math.floor(Math.random() * 1000000);
+                obj['img'] += (imgurl.substring(0, 4) == 'http') ? '&r=' + Math.random() : '';
                 obj['metalink'] = searchUrl + '&q=path:tag/' + obj['meta'] + '+' + repoExtn;
                 obj['meta'] = obj['meta'].toUpperCase();
 
@@ -211,77 +205,78 @@
                 container.append(microTemplate(temp, obj));
 
                 // update item image and intro.
-                setTimeout(function () {
-                    $.ajax({
-                        async: true,
-                        timeout: 10000,
-                        dataType: 'json',
-                        url: item['git_url'],
-                        complete: function (xhr, ts) {
-                            $.completeListItemsLength++;
-                            console.log('complete lists items length: ' + $.completeListItemsLength, item['sha']);
-
-                            var img = '', intro = '';
-                            if (ts == 'success') {
-                                // get the item intro.
-                                var content = Base64.decode(xhr['responseJSON']['content']), tmp = content.split('\n'), len = tmp.length;
-                                for (var i = 2; i < len; i++) {
-                                    var line = $.trim(tmp[i]), kw = line.slice(0, 1);
-                                    if (intro == '' && line != '' && $.inArray(kw, introFilter) == -1) {
-                                        intro = line;
-                                        break;
-                                    }
-                                }
-                                // get the first image url.
-                                /*var tmp = content.match(/!\[(.*?)\]\((.*?)\)/);
-                                if (tmp && tmp.length == 3) {
-                                    img = tmp[2];
-                                }*/
+                var isReload = true;
+                if (Cache.isSupported()) {
+                    var content = Cache.get(item['sha']);
+                    if (content) {
+                        //console.log('content', item['sha'], content);
+                        isReload = false;
+                        $.reoadedItemCount++;
+                        var tmp = content.split('\n'), len = tmp.length;
+                        for (var i = 2; i < len; i++) {
+                            var line = $.trim(tmp[i]);
+                            if (line != '' && $.inArray(line.slice(0, 1), introFilter) == -1) {
+                                setTimeout(function () {
+                                    //console.log('intro', item['sha'], line);
+                                    $('[sha=' + item['sha'] + ']').find('.entry-excerpt').html(line);
+                                }, (cursor + 1) * 100);
+                                break;
                             }
-                            //img && $('[sha=' + item['sha'] + ']').find('img').attr('src', img);
-                            intro && $('[sha=' + item['sha'] + ']').find('.entry-excerpt').html(intro);
                         }
-                    });
-                }, 100);
-
-            })(items[i], $wrapper, temp);
+                    }
+                }
+                if (isReload) {
+                    $.ajax({url: item['git_url'], async: true, timeout: 10000, dataType: 'json', complete: function (xhr, ts) {
+                        $.reoadedItemCount++;
+                        console.log('reloaded item: ' ,item['sha'], 'length: ', $.reoadedItemCount);
+                        if (ts == 'success') {
+                            var content = Base64.decode(xhr['responseJSON']['content']), tmp = content.split('\n'), len = tmp.length;
+                            for (var i = 2; i < len; i++) {
+                                var line = $.trim(tmp[i]);
+                                if (line != '' && $.inArray(line.slice(0, 1), introFilter) == -1) {
+                                    setTimeout(function () {
+                                        $('[sha=' + item['sha'] + ']').find('.entry-excerpt').html(line);
+                                        // set cache, cache 3600 seconds.
+                                        Cache.isSupported() && Cache.set(item['sha'], content, {exp: 3600});
+                                    }, (cursor + 1) * 100);
+                                    break;
+                                }
+                            }
+                        }
+                    }});
+                }
+            })(items[cursor], $wrapper, temp);
         }
-        if (typeof(callback) == 'function') {
-            callback(lists);
-        }
+        typeof(callback) == 'function' && callback(lists);
     };
 
-    var ssGetGithubLists = function (success, complete, error) {
-        var keyword = getUrlParam('q'),
-            meta = getUrlParam('m'),
-            page = getUrlParam('page') || 1,
+    /** get list data from github api */
+    var ssGetGithubLists = function (success, error) {
+        var keyword = getUrlParam('q'), meta = getUrlParam('m'), page = getUrlParam('page') || 1,
             query = (keyword || '') + '+path:tag' + (meta ? '/' + meta : ''),
             api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + perpage;
-        $.ajax({
-            url: api,
-            async: true,
-            timeout: 10000,
-            dataType: 'json',
-            success: function (lists) {
-                if (lists || lists['incomplete_results'] === false) {
-                    getItemsIntro(lists, success);
-                }
-            },
-            complete: function (xhr, ts) {
-                if (typeof(complete) == 'function') {
-                    complete(xhr, ts);
-                }
-            },
-            error: function (xhr, ts, er) {
-                if (typeof(error) == 'function') {
-                    error(ts);
-                }
+        // try to get lists from cache.
+        var isReload = true;
+        if (Cache.isSupported()) {
+            var lists = Cache.get(encodeURI(api));
+            if (lists) {
+                isReload = false;
+                typeof(success) == 'function' && success(lists);
             }
-        });
+        }
+        if (isReload) {
+            $.ajax({url: api, async: true, timeout: 10000, dataType: 'json', success: function (lists) {
+                    // set cache, cache 600 seconds.
+                    Cache.isSupported() && Cache.set(encodeURI(api), lists, {exp: 600});
+                    typeof(success) == 'function' && success(lists);
+                }, error: function (xhr, ts, er) {
+                    typeof(error) == 'function' && error(ts);
+                }
+            });
+        }
     };
 
-    /* Preloader
-    -------------------------------------------------- */
+    /** Preloader  */
     var ssPreloader = function (callback) {
         $WIN.on('load', function () {
             $("#loader").fadeOut('slow', function () {
@@ -291,8 +286,7 @@
         });
     };
 
-    /* superfish
-    -------------------------------------------------- */
+    /** superfish */
     var ssSuperFish = function () {
         $('ul.sf-menu').superfish({
             animation: {height: 'show'}, // slide-down effect without fade-in
@@ -302,8 +296,7 @@
         });
     };
 
-    /* Mobile Menu
-    ------------------------------------------------------ */
+    /** Mobile Menu */
     var ssMobileNav = function () {
         var toggleButton = $('.menu-toggle'), nav = $('.main-navigation');
         toggleButton.on('click', function (event) {
@@ -330,8 +323,7 @@
     };
 
 
-    /* search
-    ------------------------------------------------------ */
+    /** search */
     var ssSearch = function () {
         var searchWrap = $('.search-wrap');
         var searchField = searchWrap.find('.search-field');
@@ -372,17 +364,15 @@
         searchField.attr({placeholder: 'Type Your Keywords', autocomplete: 'off'});
     };
 
-    /*	Masonry
-    ------------------------------------------------------ */
+    /** imageLoaded */
     var ssImageLoaded = function () {
         $('.bricks-wrapper').imagesLoaded(function () {
             console.log('images loaded');
-            $.isImagesLoaded = true;
+            $.isLoadedImage = true;
         });
     };
 
-    /* animate bricks
-    ------------------------------------------------------ */
+    /** animate bricks */
     var ssBricksAnimate = function () {
         $('.animate-this').each(function(ctr) {
             var el = $(this);
@@ -395,6 +385,7 @@
         });
     };
 
+    /** Masonry resize cronb task */
     var ssMasonryResize = function () {
         $.masonryResizeTimes = 0;
         $.masonryResizeTask = setInterval(function () {
@@ -403,8 +394,16 @@
             if ($.masonryResizeTimes > 60) {
                 console.log('try masonry resize more than maximum');
                 clearInterval($.masonryResizeTask);
+                iziToast.error({
+                    timeout: 5000,
+                    icon: 'fa fa-frown-o',
+                    position: 'topRight',
+                    title: 'TIMEOUT',
+                    message: 'Try masonry resize more than maximum!'
+                });
             } else {
-                if ($.listItemsLength && $.isImagesLoaded && $.completeListItemsLength == $.listItemsLength) {
+                if ($.itemCount && $.isLoadedImage && $.reoadedItemCount == $.itemCount) {
+                    console.log('masonry resized');
                     clearInterval($.masonryResizeTask);
                     $('.bricks-wrapper').masonry({
                         itemSelector: '.entry',
@@ -412,14 +411,21 @@
                         percentPosition: true,
                         resize: true
                     });
-                    console.log('masonry resized');
+                    iziToast.show({
+                        theme: 'dark',
+                        timeout: 1500,
+                        icon: 'fa fa-smile-o',
+                        position: 'topCenter',
+                        title: 'OK',
+                        progressBarColor: 'rgb(0, 255, 184)',
+                        message: 'Masonry resized ' + ($.masonryResizeTimes) + ' successfully.'
+                    });
                 }
             }
         }, 500);
     };
 
-    /* Flex Slider
-    ------------------------------------------------------ */
+    /** Flex Slider */
     var ssFlexSlider = function () {
         $WIN.on('load', function () {
             $('#featured-post-slider').flexslider({
@@ -460,8 +466,7 @@
     };
 
 
-    /* Smooth Scrolling
-    ------------------------------------------------------ */
+    /** Smooth Scrolling */
     var ssSmoothScroll = function () {
         $('.smoothscroll').on('click', function (e) {
             var target = this.hash, $target = $(target);
@@ -479,19 +484,17 @@
     };
 
 
-    /* Placeholder Plugin Settings
-    ------------------------------------------------------ */
+    /** Placeholder Plugin Settings */
     var ssPlaceholder = function () {
         $('input, textarea, select').placeholder();
     };
 
-    /* Back to Top
-    ------------------------------------------------------ */
+    /** Back to Top */
     var ssBackToTop = function () {
         var pxShow = 500,         // height on which the button will show
-            fadeInTime = 400,         // how slow/fast you want the button to show
-            fadeOutTime = 400,         // how slow/fast you want the button to hide
-            scrollSpeed = 300,         // how slow/fast you want the button to scroll to top. can be a value, 'slow', 'normal' or 'fast'
+            fadeInTime = 400,     // how slow/fast you want the button to show
+            fadeOutTime = 400,    // how slow/fast you want the button to hide
+            scrollSpeed = 300,    // how slow/fast you want the button to scroll to top. can be a value, 'slow', 'normal' or 'fast'
             goTopButton = $("#go-top");
 
         // Show or hide the sticky footer button
@@ -504,32 +507,35 @@
         });
     };
 
-    /* Initialize
-    ------------------------------------------------------ */
+    /** Initialize */
     (function ssInit() {
         ssPreloader(function () {
             ssGetGithubLists(function (lists) {
                 iziToast.show({
                     theme: 'dark',
-                    timeout: 3000,
+                    timeout: 1500,
                     icon: 'fa fa-smile-o',
                     position: 'topCenter',
                     title: 'OK',
                     progressBarColor: 'rgb(0, 255, 184)',
-                    message: 'The data was successfully loaded.'
+                    message: 'Data loaded successfully.'
                 });
-                ssGetPagination(lists['total_count']);
-                ssBricksAnimate();
-                ssImageLoaded();
-                ssMasonryResize();
-            },null,function (ts) {
+                if (lists || lists['incomplete_results'] === false) {
+                    getItemsIntro(lists, function (lists) {
+                        ssGetPagination(lists['total_count']);
+                        ssBricksAnimate();
+                        ssImageLoaded();
+                        ssMasonryResize();
+                    });
+                }
+            }, function (ts) {
                 if (ts == 'timeout') {
                     iziToast.error({
                         timeout: 5000,
                         icon: 'fa fa-frown-o',
                         position: 'topRight',
                         title: 'TIMEOUT',
-                        message: 'Network slow, load data timeout, reload it!'
+                        message: 'Network slow, try reload it!'
                     });
                 }
             });
