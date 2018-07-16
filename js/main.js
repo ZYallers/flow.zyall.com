@@ -1,7 +1,3 @@
-/* ===================================================================
- * Abstract - Main JS
- *
- * ------------------------------------------------------------------- */
 (function ($) {
     "use strict";
     var $WIN = $(window),
@@ -22,7 +18,7 @@
             '/images/random/concert.jpg',
             '/images/random/shutterbug.jpg',
             '/images/random/usaf-rocket.jpg',
-            'http://uploadbeta.com/api/pictures/random?key=推女郎'
+            'https://uploadbeta.com/api/pictures/random?key=推女郎'
         ],
         introFilter = ['#', '>', '`', '<', '/', '*', '-', '!'];
 
