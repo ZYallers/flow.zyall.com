@@ -312,10 +312,14 @@
     /** Mobile Menu */
     var MobileNav = function () {
         var toggleButton = $('.menu-toggle'), nav = $('.main-navigation');
-        toggleButton.on('click', function (event) {
-            event.preventDefault();
+        toggleButton.on('click', function (e) {
+            e.preventDefault();
             toggleButton.toggleClass('is-clicked');
             nav.slideToggle();
+            e.stopPropagation();
+        });
+        nav.on('click', function (e) {
+            e.stopPropagation();
         });
         if (toggleButton.is(':visible')) {
             nav.addClass('mobile');
@@ -331,6 +335,12 @@
             if (nav.hasClass('mobile')) {
                 toggleButton.toggleClass('is-clicked');
                 nav.fadeOut();
+            }
+        });
+        $(document).on("click", function () {
+            if (nav.is(':visible')) {
+                toggleButton.toggleClass('is-clicked');
+                nav.slideToggle();
             }
         });
     };
