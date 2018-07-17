@@ -10,13 +10,17 @@
             scrollDuration: 800,           // smoothscroll duration
             statsDuration: 4000          // stats animation duration
         },
-        randimg = [
-            'http://lorempixel.com/420/420',
-            'http://lorempixel.com/g/420/420',
-            'http://lorempixel.com/420/560',
-            'http://lorempixel.com/g/420/560',
-            'http://lorempixel.com/420/600',
-            'http://lorempixel.com/g/420/600'
+        RandImages = [
+            '/images/random/work1.jpg',
+            '/images/random/work2.jpg',
+            '/images/random/work3.jpg',
+            '/images/random/liberty.jpg',
+            '/images/random/concert.jpg',
+            '/images/random/shutterbug.jpg',
+            '/images/random/usaf-rocket.jpg',
+            'http://uploadbeta.com/api/pictures/random?key=推女郎',
+            'http://uploadbeta.com/api/pictures/random?key=性感',
+            'http://uploadbeta.com/api/pictures/random?key=美腿'
         ],
         introFilter = ['#', '>', '`', '<', '/', '*', '-', '!'];
 
@@ -127,18 +131,18 @@
     };
 
     /** get url params */
-    var getUrlParam = function (name) {
+    var GetUrlParam = function (name) {
         var arr = window.location.search.substr(1).match(new RegExp("(^|&)" + name + "=([^&]*)(&|$)"));
         return arr != null ? arr[2] : null;
     };
 
     /** set pagination */
-    var ssGetPagination = function (total) {
+    var GetPagination = function (total) {
         if (!(total > 0) || total <= perpage) {
             return;
         }
 
-        var $page = $('.pagination'), arr = [], query = getUrlParam('q'), meta = getUrlParam('m'), page = getUrlParam('page') || 1,
+        var $page = $('.pagination'), arr = [], query = GetUrlParam('q'), meta = GetUrlParam('m'), page = GetUrlParam('page') || 1,
             totalPage = Math.ceil(total / perpage), href = (query ? 'q=' + query : '') + (meta ? '&m=' + meta : '');
         href = href ? '?' + href + '&page=' : '?page=';
 
@@ -160,8 +164,8 @@
         $page.parent().fadeIn();
     };
 
-    /** lists item template html */
-    var microTemplate = function (src, data) {
+    /** template html */
+    var MicroTemplate = function (src, data) {
         // replace {{tags}} in source
         return src.replace(/\{\{([\w\-_\.]+)\}\}/gi, function (match, key) {
             // walk through objects to get value
@@ -173,25 +177,36 @@
         });
     };
 
-    /** set lists item intro */
-    var getItemsIntro = function (lists, callback) {
-        var items = lists['items'], len = items.length, $wrapper = $('div.bricks-wrapper'), $slides = $('ul.slides'),
-            artTemp = $('#lists-item-template').html(), sliderTemp = $('#flexslider-template').html();
+    /** get articles */
+    var GetArticles = function (lists, callback) {
+        var items = lists.items, len = items.length;
         $.itemCount = len;
         $.reoadedItemCount = 0;
         for (var cursor = 0; cursor < len; cursor++) {
-            (function (item, container, slides, artTemp, sliderTemp) {
-                var obj = {sha: item['sha'], intro: "", link: item['html_url'], title: item['name'].slice(0, -3),
-                    meta: item['path'].split('/')[1], img: randimg[Math.floor((Math.random() * randimg.length))]};
-                obj['img'] += (obj['img'].indexOf('?') == -1 ? '?' : '&') + 'rd=' + Math.floor(Math.random() * 1000000);
-                obj['metalink'] = searchUrl + '&q=path:tag/' + obj['meta'] + '+' + repoExtn;
-                obj['meta'] = obj['meta'].toUpperCase();
+            (function (item, cursor) {
+                var container = $('div.bricks-wrapper'), grid = $('div.featured-grid'), slides = $('ul.slides'),
+                    artTemp = $('#lists-item-template').html(), sliderTemp = $('#flexslider-template').html();
+
+                // filter the static local images
+                var img = RandImages[Math.floor((Math.random() * RandImages.length))];
+                if (img.substring(0, 4) != 'http') {
+                    RandImages = $.grep(RandImages, function (value) {
+                        return value != img;
+                    });
+                }
+
+                var article = {sha: item['sha'], intro: '', link: item['html_url'], title: item['name'].slice(0, -3),
+                    meta: item['path'].split('/')[1], img: img};
+                article.img += (img.substring(0, 4) == 'http') ? '&rd=' + Math.floor(Math.random() * 1000000) : '';
+                article.metalink = '/?m=' + article.meta;
+                article.meta = article.meta.toUpperCase();
 
                 // append to contain.
-                if (cursor < 3) {
-                    slides.append(microTemplate(sliderTemp, obj));
-                }else{
-                    container.append(microTemplate(artTemp, obj));
+                $.itemCount > 3 && grid.removeClass('hide');
+                if ($.itemCount > 3 && cursor < 3) {
+                    slides.append(MicroTemplate(sliderTemp, article));
+                } else {
+                    container.append(MicroTemplate(artTemp, article));
                 }
 
                 // update item image and intro.
@@ -199,7 +214,6 @@
                 if (Cache.isSupported()) {
                     var content = Cache.get(item['sha']);
                     if (content) {
-                        //console.log('content', item['sha'], content);
                         isReload = false;
                         $.reoadedItemCount++;
                         var tmp = content.split('\n'), len = tmp.length;
@@ -244,14 +258,14 @@
                         }
                     }});
                 }
-            })(items[cursor], $wrapper, $slides, artTemp, sliderTemp);
+            })(items[cursor], cursor);
         }
         typeof(callback) == 'function' && callback(lists);
     };
 
-    /** get list data from github api */
-    var ssGetGithubLists = function (success, error) {
-        var keyword = getUrlParam('q'), meta = getUrlParam('m'), page = getUrlParam('page') || 1,
+    /** get list data */
+    var GetLists = function (success, error) {
+        var keyword = GetUrlParam('q'), meta = GetUrlParam('m'), page = GetUrlParam('page') || 1,
             query = (keyword || '') + '+path:tag' + (meta ? '/' + meta : ''),
             api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + perpage;
         // try to get lists from cache.
@@ -276,7 +290,7 @@
     };
 
     /** Preloader  */
-    var ssPreloader = function (callback) {
+    var Preloader = function (callback) {
         $WIN.on('load', function () {
             $("#loader").fadeOut('slow', function () {
                 // will fade out the whole DIV that covers the website.
@@ -286,7 +300,7 @@
     };
 
     /** superfish */
-    var ssSuperFish = function () {
+    var SuperFish = function () {
         $('ul.sf-menu').superfish({
             animation: {height: 'show'}, // slide-down effect without fade-in
             animationOut: {height: 'hide'}, // slide-up effect without fade-in
@@ -296,7 +310,7 @@
     };
 
     /** Mobile Menu */
-    var ssMobileNav = function () {
+    var MobileNav = function () {
         var toggleButton = $('.menu-toggle'), nav = $('.main-navigation');
         toggleButton.on('click', function (event) {
             event.preventDefault();
@@ -323,7 +337,7 @@
 
 
     /** search */
-    var ssSearch = function () {
+    var MenuSearch = function () {
         var searchWrap = $('.search-wrap');
         var searchField = searchWrap.find('.search-field');
         var closeSearch = $('#close-search');
@@ -363,8 +377,8 @@
         searchField.attr({placeholder: 'Type Your Keywords', autocomplete: 'off'});
     };
 
-    /** imageLoaded */
-    var ssImageLoaded = function () {
+    /** imagesLoaded */
+    var ImagesLoaded = function () {
         $('.bricks-wrapper').imagesLoaded(function () {
             console.log('images loaded');
             $.isLoadedImage = true;
@@ -372,7 +386,7 @@
     };
 
     /** animate bricks */
-    var ssBricksAnimate = function () {
+    var BricksAnimate = function () {
         $('.animate-this').each(function(ctr) {
             var el = $(this);
             setTimeout(function() {
@@ -385,7 +399,7 @@
     };
 
     /** Masonry resize cronb task */
-    var ssMasonryResize = function () {
+    var MasonryResize = function () {
         $.masonryResizeTimes = 0;
         $.masonryResizeTask = setInterval(function () {
             console.log('try masonry resize...', $.masonryResizeTimes);
@@ -425,7 +439,7 @@
     };
 
     /** Flex Slider */
-    var ssFlexSlider = function () {
+    var FlexSlider = function () {
         $('#featured-post-slider').flexslider({
             namespace: "flex-",
             controlsContainer: '',
@@ -441,7 +455,7 @@
     };
 
     /** Smooth Scrolling */
-    var ssSmoothScroll = function () {
+    var SmoothScroll = function () {
         $('.smoothscroll').on('click', function (e) {
             var target = this.hash, $target = $(target);
             e.preventDefault();
@@ -459,21 +473,20 @@
 
 
     /** Placeholder Plugin Settings */
-    var ssPlaceholder = function () {
+    var Placeholder = function () {
         $('input, textarea, select').placeholder();
     };
 
     /** Back to Top */
-    var ssBackToTop = function () {
+    var BackToTop = function () {
         var pxShow = 500,         // height on which the button will show
             fadeInTime = 400,     // how slow/fast you want the button to show
             fadeOutTime = 400,    // how slow/fast you want the button to hide
             scrollSpeed = 300,    // how slow/fast you want the button to scroll to top. can be a value, 'slow', 'normal' or 'fast'
             goTopButton = $("#go-top");
-
         // Show or hide the sticky footer button
-        $(window).on('scroll', function () {
-            if ($(window).scrollTop() >= pxShow) {
+        $WIN.on('scroll', function () {
+            if ($WIN.scrollTop() >= pxShow) {
                 goTopButton.fadeIn(fadeInTime);
             } else {
                 goTopButton.fadeOut(fadeOutTime);
@@ -482,44 +495,34 @@
     };
 
     /** Initialize */
-    (function ssInit() {
-        ssPreloader(function () {
-            ssGetGithubLists(function (lists) {
-                iziToast.show({
-                    theme: 'dark',
-                    timeout: 1500,
-                    icon: 'fa fa-smile-o',
-                    position: 'topCenter',
-                    title: 'OK',
-                    progressBarColor: 'rgb(0, 255, 184)',
-                    message: 'Data loaded successfully.'
-                });
+    (function Init() {
+        Preloader(function () {
+            GetLists(function (lists) {
+                $('div.bricks-loading').hide();
+                iziToast.show({theme: 'dark', timeout: 1500, icon: 'fa fa-smile-o', position: 'topCenter',
+                    title: 'OK', progressBarColor: 'rgb(0, 255, 184)', message: 'Data loaded successfully.'});
                 if (lists || lists['incomplete_results'] === false) {
-                    getItemsIntro(lists, function (lists) {
-                        ssGetPagination(lists['total_count']);
-                        ssFlexSlider();
-                        ssBricksAnimate();
-                        ssImageLoaded();
-                        ssMasonryResize();
+                    GetArticles(lists, function (lists) {
+                        GetPagination(lists['total_count']);
+                        FlexSlider();
+                        BricksAnimate();
+                        ImagesLoaded();
+                        MasonryResize();
                     });
                 }
             }, function (ts) {
+                var msg = 'Error occurred, try reload it!';
                 if (ts == 'timeout') {
-                    iziToast.error({
-                        timeout: 5000,
-                        icon: 'fa fa-frown-o',
-                        position: 'topRight',
-                        title: 'TIMEOUT',
-                        message: 'Network slow, try reload it!'
-                    });
+                    msg = 'Network slow, try reload it!';
                 }
+                iziToast.error({timeout: 5000, icon: 'fa fa-frown-o', position: 'topRight', title: ts.toUpperCase(), message: msg});
             });
         });
-        ssSuperFish();
-        ssMobileNav();
-        ssSearch();
-        ssSmoothScroll();
-        ssPlaceholder();
-        ssBackToTop();
+        SuperFish();
+        MobileNav();
+        MenuSearch();
+        SmoothScroll();
+        Placeholder();
+        BackToTop();
     })();
 })(jQuery);

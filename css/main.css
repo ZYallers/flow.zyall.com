@@ -2219,6 +2219,15 @@ header .logo a {
     padding-top: 4.2rem;
 }
 
+#bricks .bricks-loading {
+    text-align: center;
+}
+
+#bricks .bricks-loading > i {
+    -webkit-animation: fa-spin 2s infinite linear;
+    animation: fa-spin 2s infinite linear;
+}
+
 #bricks .masonry {
     max-width: 1440px;
 }
@@ -2341,7 +2350,7 @@ header .logo a {
  *
  * ------------------------------------------------------------------- */
 footer {
-    padding-top: 5rem;
+    padding-top: 9rem;
     padding-bottom: 3rem;
     font-size: 1.5rem;
     color: #8E8E8E;
