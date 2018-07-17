@@ -2,7 +2,7 @@
     "use strict";
     var $WIN = $(window),
         Cache = new WebStorageCache({storage: 'localStorage'}),
-        perpage = 10,
+        perpage = 13,
         searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
         repoExtn = 'repo:ZYallers/ZYaller+extension:md',
         cfg = {
@@ -11,14 +11,12 @@
             statsDuration: 4000          // stats animation duration
         },
         randimg = [
-            '/images/random/work1.jpg',
-            '/images/random/work2.jpg',
-            '/images/random/work3.jpg',
-            '/images/random/liberty.jpg',
-            '/images/random/concert.jpg',
-            '/images/random/shutterbug.jpg',
-            '/images/random/usaf-rocket.jpg',
-            'https://uploadbeta.com/api/pictures/random?key=推女郎'
+            'http://lorempixel.com/420/420',
+            'http://lorempixel.com/g/420/420',
+            'http://lorempixel.com/420/560',
+            'http://lorempixel.com/g/420/560',
+            'http://lorempixel.com/420/600',
+            'http://lorempixel.com/g/420/600'
         ],
         introFilter = ['#', '>', '`', '<', '/', '*', '-', '!'];
 
@@ -177,28 +175,24 @@
 
     /** set lists item intro */
     var getItemsIntro = function (lists, callback) {
-        var items = lists['items'], len = items.length, $wrapper = $('.bricks-wrapper'), temp = $('#lists-item-template').html();
+        var items = lists['items'], len = items.length, $wrapper = $('div.bricks-wrapper'), $slides = $('ul.slides'),
+            artTemp = $('#lists-item-template').html(), sliderTemp = $('#flexslider-template').html();
         $.itemCount = len;
         $.reoadedItemCount = 0;
         for (var cursor = 0; cursor < len; cursor++) {
-            (function (item, container, temp) {
-                // filter the static local images
-                var imgurl = randimg[Math.floor((Math.random() * randimg.length))];
-                if (imgurl.substring(0, 4) != 'http') {
-                    randimg = $.grep(randimg, function (value) {
-                        return value != imgurl;
-                    });
-                }
-                var obj = {
-                    "sha": item['sha'], "intro": "", "link": item['html_url'], "img": imgurl,
-                    "title": item['name'].slice(0, -3), "meta": item['path'].split('/')[1]
-                };
-                obj['img'] += (imgurl.substring(0, 4) == 'http') ? '&r=' + Math.random() : '';
+            (function (item, container, slides, artTemp, sliderTemp) {
+                var obj = {sha: item['sha'], intro: "", link: item['html_url'], title: item['name'].slice(0, -3),
+                    meta: item['path'].split('/')[1], img: randimg[Math.floor((Math.random() * randimg.length))]};
+                obj['img'] += (obj['img'].indexOf('?') == -1 ? '?' : '&') + 'rd=' + Math.floor(Math.random() * 1000000);
                 obj['metalink'] = searchUrl + '&q=path:tag/' + obj['meta'] + '+' + repoExtn;
                 obj['meta'] = obj['meta'].toUpperCase();
 
                 // append to contain.
-                container.append(microTemplate(temp, obj));
+                if (cursor < 3) {
+                    slides.append(microTemplate(sliderTemp, obj));
+                }else{
+                    container.append(microTemplate(artTemp, obj));
+                }
 
                 // update item image and intro.
                 var isReload = true;
@@ -213,8 +207,12 @@
                             var line = $.trim(tmp[i]);
                             if (line != '' && $.inArray(line.slice(0, 1), introFilter) == -1) {
                                 setTimeout(function () {
-                                    //console.log('intro', item['sha'], line);
-                                    $('[sha=' + item['sha'] + ']').find('.entry-excerpt').html(line);
+                                    var $sha = $('[sha=' + item['sha'] + ']');
+                                    if ($sha.attr('art') == '1') {
+                                        $sha.find('div.entry-excerpt').html(line);
+                                    } else {
+                                        $sha.find('ul.entry-meta').children('li').eq(1).html(line);
+                                    }
                                 }, (cursor + 1) * 100);
                                 break;
                             }
@@ -231,7 +229,12 @@
                                 var line = $.trim(tmp[i]);
                                 if (line != '' && $.inArray(line.slice(0, 1), introFilter) == -1) {
                                     setTimeout(function () {
-                                        $('[sha=' + item['sha'] + ']').find('.entry-excerpt').html(line);
+                                        var $sha = $('[sha=' + item['sha'] + ']');
+                                        if ($sha.attr('art') == '1') {
+                                            $sha.find('div.entry-excerpt').html(line);
+                                        } else {
+                                            $sha.find('ul.entry-meta').children('li').eq(1).html(line);
+                                        }
                                         // set cache, cache 3600 seconds.
                                         Cache.isSupported() && Cache.set(item['sha'], content, {exp: 3600});
                                     }, (cursor + 1) * 100);
@@ -241,7 +244,7 @@
                         }
                     }});
                 }
-            })(items[cursor], $wrapper, temp);
+            })(items[cursor], $wrapper, $slides, artTemp, sliderTemp);
         }
         typeof(callback) == 'function' && callback(lists);
     };
@@ -423,44 +426,19 @@
 
     /** Flex Slider */
     var ssFlexSlider = function () {
-        $WIN.on('load', function () {
-            $('#featured-post-slider').flexslider({
-                namespace: "flex-",
-                controlsContainer: "", // ".flex-content",
-                animation: 'fade',
-                controlNav: false,
-                directionNav: true,
-                smoothHeight: false,
-                slideshowSpeed: 7000,
-                animationSpeed: 600,
-                randomize: false,
-                touch: true,
-            });
-            $('.post-slider').flexslider({
-                namespace: "flex-",
-                controlsContainer: "",
-                animation: 'fade',
-                controlNav: true,
-                directionNav: false,
-                smoothHeight: false,
-                slideshowSpeed: 7000,
-                animationSpeed: 600,
-                randomize: false,
-                touch: true,
-                start: function (slider) {
-                    if (typeof slider.container === 'object') {
-                        slider.container.on("click", function (e) {
-                            if (!slider.animating) {
-                                slider.flexAnimate(slider.getTarget('next'));
-                            }
-                        });
-                    }
-                    $('.bricks-wrapper').masonry('layout');
-                }
-            });
+        $('#featured-post-slider').flexslider({
+            namespace: "flex-",
+            controlsContainer: '',
+            animation: 'fade',
+            controlNav: false,
+            directionNav: true,
+            smoothHeight: false,
+            slideshowSpeed: 7000,
+            animationSpeed: 600,
+            randomize: false,
+            touch: true,
         });
     };
-
 
     /** Smooth Scrolling */
     var ssSmoothScroll = function () {
@@ -519,6 +497,7 @@
                 if (lists || lists['incomplete_results'] === false) {
                     getItemsIntro(lists, function (lists) {
                         ssGetPagination(lists['total_count']);
+                        ssFlexSlider();
                         ssBricksAnimate();
                         ssImageLoaded();
                         ssMasonryResize();
@@ -536,7 +515,6 @@
                 }
             });
         });
-        ssFlexSlider();
         ssSuperFish();
         ssMobileNav();
         ssSearch();

@@ -33,7 +33,7 @@
             <ul class="main-navigation sf-menu">
                 <li class="current"><a href="/" title="">Flow</a></li>
                 <li class="has-children">
-                    <a href="category.html" title="" class="sf-with-ul">Tags</a>
+                    <a href="#" title="Tags" class="sf-with-ul">Tags</a>
                     <ul class="sub-menu">
                         <li><a href="#">php</a></li>
                         <li><a href="#">javascript</a></li>
@@ -47,8 +47,8 @@
                         <li><a href="#">chrome</a></li>
                     </ul>
                 </li>
-                <li><a target="_blank" href="http://git.zyall.com" title="">Github</a></li>
-                <li><a target="_blank" href="http://zyall.com" title="">ZYallers</a></li>
+                <li><a target="_blank" href="http://git.zyall.com" title="Github">Github</a></li>
+                <li><a target="_blank" href="http://www.zyall.com" title="ZYallers">ZYallers</a></li>
             </ul>
         </nav>
         <div class="search-wrap">
@@ -74,47 +74,7 @@
             <div class="brick entry featured-grid animate-this">
                 <div class="entry-content">
                     <div id="featured-post-slider" class="flexslider">
-                        <ul class="slides">
-                            <li>
-                                <div class="featured-post-slide">
-                                    <div class="post-background" style="background-image:url('images/thumbs/featured/featured-1.jpg');"></div>
-                                    <div class="overlay"></div>
-                                    <div class="post-content">
-                                        <ul class="entry-meta">
-                                            <li>September 06, 2016</li>
-                                            <li><a href="#">Naruto Uzumaki</a></li>
-                                        </ul>
-                                        <h1 class="slide-title"><a href="single-standard.html" title="">Minimalism Never Goes Out of Style</a></h1>
-                                    </div>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="featured-post-slide">
-                                    <div class="post-background" style="background-image:url('images/thumbs/featured/featured-2.jpg');"></div>
-                                    <div class="overlay"></div>
-                                    <div class="post-content">
-                                        <ul class="entry-meta">
-                                            <li>August 29, 2016</li>
-                                            <li><a href="#">Sasuke Uchiha</a></li>
-                                        </ul>
-                                        <h1 class="slide-title"><a href="single-standard.html" title="">Enhancing Your Designs with Negative Space</a></h1>
-                                    </div>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="featured-post-slide">
-                                    <div class="post-background" style="background-image:url('images/thumbs/featured/featured-3.jpg');;"></div>
-                                    <div class="overlay"></div>
-                                    <div class="post-content">
-                                        <ul class="entry-meta">
-                                            <li>August 27, 2016</li>
-                                            <li><a href="#" class="author">Naruto Uzumaki</a></li>
-                                        </ul>
-                                        <h1 class="slide-title"><a href="single-standard.html" title="">Music Album Cover Designs for Inspiration</a></h1>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
+                        <ul class="slides"></ul>
                     </div>
                 </div>
             </div>
@@ -174,7 +134,7 @@
 <div id="preloader"><div id="loader"></div></div>
 <!-- lists-item template HTML -->
 <script type="text/html" id="lists-item-template">
-    <article class="brick entry animate-this" sha="{{sha}}">
+    <article class="brick entry animate-this" sha="{{sha}}" art="1">
         <div class="entry-thumb">
             <a target="_blank" href="{{img}}" class="thumb-link" title="{{title}}" data-lity data-lity-desc="{{title}}"><img src="{{img}}" alt="IMGAE"></a>
         </div>
@@ -187,6 +147,22 @@
         </div>
     </article>
 </script>
+<!-- flexslider temolate HTML -->
+<script type="text/html" id="flexslider-template">
+    <li sha="{{sha}}" art="0">
+        <div class="featured-post-slide">
+            <div class="post-background" style="background-image:url('{{img}}');"></div>
+            <div class="overlay"></div>
+            <div class="post-content">
+                <ul class="entry-meta">
+                    <li><a href="{{metalink}}">{{meta}}</a></li>
+                    <li>{{intro}}</li>
+                </ul>
+                <h1 class="slide-title"><a href="{{link}}" title="{{title}}">{{title}}</a></h1>
+            </div>
+        </div>
+    </li>
+</script>
 <script src="/js/plugins/h5-placeholder.min.js"></script>
 <!--<script src="/js/plugins/fit-vids.min.js"></script>-->
 <script src="/js/plugins/flex-slider.min.js"></script>
@@ -198,6 +174,6 @@
 <script src="/js/plugins/hover-intent.min.js"></script>
 <script src="/js/plugins/izi-toast.min.js"></script>
 <script src="/js/plugins/web-storage-cache.min.js"></script>
-<script src="/js/main.min.js"></script>
+<script src="/js/main.js"></script>
 </body>
 </html>
