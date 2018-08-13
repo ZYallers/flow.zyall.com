@@ -508,17 +508,21 @@
     (function Init() {
         Preloader(function () {
             GetLists(function (lists) {
-                $('div.bricks-loading').hide();
                 iziToast.show({theme: 'dark', timeout: 1500, icon: 'fa fa-smile-o', position: 'topCenter',
                     title: 'OK', progressBarColor: 'rgb(0, 255, 184)', message: 'Data loaded successfully.'});
                 if (lists || lists['incomplete_results'] === false) {
-                    GetArticles(lists, function (lists) {
-                        GetPagination(lists['total_count']);
-                        FlexSlider();
-                        BricksAnimate();
-                        ImagesLoaded();
-                        MasonryResize();
-                    });
+                    if(lists.items.length > 0){
+                        $('div.bricks-loading').hide();
+                        GetArticles(lists, function (lists) {
+                            GetPagination(lists['total_count']);
+                            FlexSlider();
+                            BricksAnimate();
+                            ImagesLoaded();
+                            MasonryResize();
+                        });
+                    } else {
+                        $('div.bricks-loading').html('<div style="font-size: x-large;">Nothing Search</div>');
+                    }
                 }
             }, function (ts) {
                 var msg = 'Error occurred, try reload it!';
