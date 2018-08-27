@@ -10,18 +10,6 @@
             scrollDuration: 800,           // smoothscroll duration
             statsDuration: 4000          // stats animation duration
         },
-        RandImages = [
-            '/images/random/work1.jpg',
-            '/images/random/work2.jpg',
-            '/images/random/work3.jpg',
-            '/images/random/liberty.jpg',
-            '/images/random/concert.jpg',
-            '/images/random/shutterbug.jpg',
-            '/images/random/usaf-rocket.jpg',
-            'http://uploadbeta.com/api/pictures/random?key=推女郎',
-            'http://uploadbeta.com/api/pictures/random?key=性感',
-            'http://uploadbeta.com/api/pictures/random?key=美腿'
-        ],
         introFilter = ['#', '>', '`', '<', '/', '*', '-', '!'];
 
     /** Base64 encode/decode see http://www.webtoolkit.info */
@@ -142,7 +130,8 @@
             return;
         }
 
-        var $page = $('.pagination'), arr = [], query = GetUrlParam('q'), meta = GetUrlParam('m'), page = GetUrlParam('page') || 1,
+        var $page = $('.pagination'), arr = [], query = GetUrlParam('q'), meta = GetUrlParam('m'),
+            page = GetUrlParam('page') || 1,
             totalPage = Math.ceil(total / perpage), href = (query ? 'q=' + query : '') + (meta ? '&m=' + meta : '');
         href = href ? '?' + href + '&page=' : '?page=';
 
@@ -177,6 +166,11 @@
         });
     };
 
+    /** GetOneRandImage */
+    var GetOneRandImage = function (source) {
+        return source[Math.floor((Math.random() * source.length))];
+    };
+
     /** get articles */
     var GetArticles = function (lists, callback) {
         var items = lists.items, len = items.length;
@@ -184,20 +178,15 @@
         $.reoadedItemCount = 0;
         for (var cursor = 0; cursor < len; cursor++) {
             (function (item, cursor) {
-                var container = $('div.bricks-wrapper'), grid = $('div.featured-grid'), slides = $('ul.slides'),
-                    artTemp = $('#lists-item-template').html(), sliderTemp = $('#flexslider-template').html();
-
-                // filter the static local images
-                var img = RandImages[Math.floor((Math.random() * RandImages.length))];
-                if (img.substring(0, 4) != 'http') {
-                    RandImages = $.grep(RandImages, function (value) {
-                        return value != img;
-                    });
-                }
-
-                var article = {sha: item['sha'], intro: '', link: item['html_url'], title: item['name'].slice(0, -3),
-                    meta: item['path'].split('/')[1], img: img};
-                article.img += (img.substring(0, 4) == 'http') ? '&rd=' + Math.floor(Math.random() * 1000000) : '';
+                var container = $('div.bricks-wrapper'),
+                    grid = $('div.featured-grid'),
+                    slides = $('ul.slides'),
+                    artTemp = $('#lists-item-template').html(),
+                    sliderTemp = $('#flexslider-template').html(),
+                    article = {
+                        sha: item['sha'], intro: '', link: item['html_url'], title: item['name'].slice(0, -3),
+                        meta: item['path'].split('/')[1], img: GetOneRandImage(window.SECTION_IMAGE)
+                    };
                 article.metalink = '/?m=' + article.meta;
                 article.meta = article.meta.toUpperCase();
 
@@ -234,29 +223,36 @@
                     }
                 }
                 if (isReload) {
-                    $.ajax({url: item['git_url'], async: true, timeout: 10000, dataType: 'json', complete: function (xhr, ts) {
-                        $.reoadedItemCount++;
-                        console.log('reloaded item: ' ,item['sha'], 'length: ', $.reoadedItemCount);
-                        if (ts == 'success') {
-                            var content = Base64.decode(xhr['responseJSON']['content']), tmp = content.split('\n'), len = tmp.length;
-                            for (var i = 2; i < len; i++) {
-                                var line = $.trim(tmp[i]);
-                                if (line != '' && $.inArray(line.slice(0, 1), introFilter) == -1) {
-                                    setTimeout(function () {
-                                        var $sha = $('[sha=' + item['sha'] + ']');
-                                        if ($sha.attr('art') == '1') {
-                                            $sha.find('div.entry-excerpt').html(line);
-                                        } else {
-                                            $sha.find('ul.entry-meta').children('li').eq(1).html(line);
-                                        }
-                                        // set cache, cache 3600 seconds.
-                                        Cache.isSupported() && Cache.set(item['sha'], content, {exp: 3600});
-                                    }, (cursor + 1) * 100);
-                                    break;
+                    $.ajax({
+                        url: item['git_url'],
+                        async: true,
+                        timeout: 10000,
+                        dataType: 'json',
+                        complete: function (xhr, ts) {
+                            $.reoadedItemCount++;
+                            console.log('reloaded item: ', item['sha'], 'length: ', $.reoadedItemCount);
+                            if (ts == 'success') {
+                                var content = Base64.decode(xhr['responseJSON']['content']), tmp = content.split('\n'),
+                                    len = tmp.length;
+                                for (var i = 2; i < len; i++) {
+                                    var line = $.trim(tmp[i]);
+                                    if (line != '' && $.inArray(line.slice(0, 1), introFilter) == -1) {
+                                        setTimeout(function () {
+                                            var $sha = $('[sha=' + item['sha'] + ']');
+                                            if ($sha.attr('art') == '1') {
+                                                $sha.find('div.entry-excerpt').html(line);
+                                            } else {
+                                                $sha.find('ul.entry-meta').children('li').eq(1).html(line);
+                                            }
+                                            // set cache, cache 3600 seconds.
+                                            Cache.isSupported() && Cache.set(item['sha'], content, {exp: 3600});
+                                        }, (cursor + 1) * 100);
+                                        break;
+                                    }
                                 }
                             }
                         }
-                    }});
+                    });
                 }
             })(items[cursor], cursor);
         }
@@ -278,7 +274,8 @@
             }
         }
         if (isReload) {
-            $.ajax({url: api, async: true, timeout: 10000, dataType: 'json', success: function (lists) {
+            $.ajax({
+                url: api, async: true, timeout: 10000, dataType: 'json', success: function (lists) {
                     // set cache, cache 600 seconds.
                     Cache.isSupported() && Cache.set(encodeURI(api), lists, {exp: 600});
                     typeof(success) == 'function' && success(lists);
@@ -287,6 +284,20 @@
                 }
             });
         }
+    };
+
+    /** SetBodyBackgroundImage */
+    var SetBodyBackgroundImage = function () {
+        $('body').css({
+            'background-image': 'url(' + GetOneRandImage(window.BACKGROUND_IMAGE) + ')',
+            'transition': 'transform .3s ease-out',
+            'background-color': 'transparent',
+            'background-size': 'cover',
+            'background-position': 'center center',
+            'background-repeat': 'no-repeat',
+            'background-attachment': 'fixed',
+            '-webkit-animation': 'fadein .5s ease-out 0s forwards'
+        });
     };
 
     /** Preloader  */
@@ -397,9 +408,9 @@
 
     /** animate bricks */
     var BricksAnimate = function () {
-        $('.animate-this').each(function(ctr) {
+        $('.animate-this').each(function (ctr) {
             var el = $(this);
-            setTimeout(function() {
+            setTimeout(function () {
                 el.addClass('animated fadeInUp');
             }, ctr * 200);
         });
@@ -410,11 +421,12 @@
 
     /** Masonry resize cronb task */
     var MasonryResize = function () {
+        var masonryResizeMaxTimes = 30;
         $.masonryResizeTimes = 0;
         $.masonryResizeTask = setInterval(function () {
             console.log('try masonry resize...', $.masonryResizeTimes);
             $.masonryResizeTimes++;
-            if ($.masonryResizeTimes > 60) {
+            if ($.masonryResizeTimes > masonryResizeMaxTimes) {
                 console.log('try masonry resize more than maximum');
                 clearInterval($.masonryResizeTask);
                 iziToast.error({
@@ -445,7 +457,7 @@
                     });
                 }
             }
-        }, 500);
+        }, 1000);
     };
 
     /** Flex Slider */
@@ -506,12 +518,20 @@
 
     /** Initialize */
     (function Init() {
+        SetBodyBackgroundImage();
         Preloader(function () {
             GetLists(function (lists) {
-                iziToast.show({theme: 'dark', timeout: 1500, icon: 'fa fa-smile-o', position: 'topCenter',
-                    title: 'OK', progressBarColor: 'rgb(0, 255, 184)', message: 'Data loaded successfully.'});
+                iziToast.show({
+                    title: 'OK',
+                    theme: 'dark',
+                    timeout: 1500,
+                    position: 'topCenter',
+                    icon: 'fa fa-smile-o',
+                    progressBarColor: 'rgb(0, 255, 184)',
+                    message: 'Data loaded successfully.'
+                });
                 if (lists || lists['incomplete_results'] === false) {
-                    if(lists.items.length > 0){
+                    if (lists.items.length > 0) {
                         $('div.bricks-loading').hide();
                         GetArticles(lists, function (lists) {
                             GetPagination(lists['total_count']);
@@ -529,7 +549,13 @@
                 if (ts == 'timeout') {
                     msg = 'Network slow, try reload it!';
                 }
-                iziToast.error({timeout: 5000, icon: 'fa fa-frown-o', position: 'topRight', title: ts.toUpperCase(), message: msg});
+                iziToast.error({
+                    timeout: 5000,
+                    icon: 'fa fa-frown-o',
+                    position: 'topRight',
+                    title: ts.toUpperCase(),
+                    message: msg
+                });
             });
         });
         SuperFish();

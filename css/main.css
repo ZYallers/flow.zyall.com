@@ -1427,10 +1427,10 @@ input::-moz-focus-inner {
  * ------------------------------------------------------------------- */
 header {
     width: 100%;
-    background: #DBDBDB url(../images/escheresque_@2X.png) repeat;
-    background-size: 46px 29px;
     height: 110px;
-    border-bottom: 1px solid #E5E5E5;
+    /*background: #DBDBDB url(../images/escheresque_@2X.png) repeat;*/
+    /*background-size: 46px 29px;*/
+    /*border-bottom: 1px solid #E5E5E5;*/
 }
 
 header .header-content {

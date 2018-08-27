@@ -1,0 +1,22 @@
+window.BACKGROUND_IMAGE = [
+    'https://farm6.staticflickr.com/5649/20166324354_ddd73a19a3_k.jpg',
+    'https://drscdn.500px.org/photo/147485733/q%3D80_m%3D1500/v2?webp=true&sig=89d4d7948458df6ab69351fd6c182940d7a3e6e0d1b3735a2a9608cfa467b4a7',
+    'https://drscdn.500px.org/photo/147485733/q%3D80_m%3D1500/v2?webp=true&sig=89d4d7948458df6ab69351fd6c182940d7a3e6e0d1b3735a2a9608cfa467b4a7',
+    'https://drscdn.500px.org/photo/173565125/q%3D80_m%3D1500/v2?webp=true&sig=526163a1acd3c53fe6e55f5ece1af968471a9adde4ccde3245d2a0c374ccc75b',
+    'https://images.unsplash.com/photo-1498550744921-75f79806b8a7?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=b0f6908fa5e81286213c7211276e6b3d&auto=format&fit=crop&w=1950&q=80',
+    'https://images.unsplash.com/photo-1488503674815-d6c13687ff65?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=b44419eaf156aec956e391791af03b90&auto=format&fit=crop&w=1351&q=80',
+    'https://images.unsplash.com/photo-1489703197108-878f05f4b31b?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=943be4a53094e573abf05d8b1f20aced&auto=format&fit=crop&w=1352&q=80',
+    'https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=74c51a189ca1ab912a127122cf6ba45f&auto=format&fit=crop&w=1350&q=80',
+    'https://images.unsplash.com/photo-1505245208761-ba872912fac0?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=608629c5a6a368d239d44bf9e84956b8&auto=format&fit=crop&w=1350&q=80',
+    'https://images.unsplash.com/photo-1502261159926-e31d770eb6e1?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=9efa0661e53144c027f5cea31760a31a&auto=format&fit=crop&w=1481&q=80',
+    'https://images.unsplash.com/photo-1500993855538-c6a99f437aa7?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=72a0229d410f0e7c7701ebfc53b68a65&auto=format&fit=crop&w=1350&q=80',
+    'https://images.unsplash.com/photo-1489619243109-4e0ea59cfe10?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=974d4283fca93c49c75f8b19a4b6abbf&auto=format&fit=crop&w=1350&q=80',
+    'https://images.unsplash.com/photo-1482192505345-5655af888cc4?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=a14ca13b83f7bce82764a45d13576418&auto=format&fit=crop&w=1400&q=80',
+    'https://images.unsplash.com/photo-1432256851563-20155d0b7a39?ixlib=rb-0.3.5&s=15df7b52d55cff3d1cf0d4869b2f1c99&auto=format&fit=crop&w=1350&q=80',
+    'https://images.unsplash.com/photo-1505764850660-52f5ae2dc7da?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=5a11ea8611660f6e713b1fef837febdc&auto=format&fit=crop&w=1350&q=80',
+    'https://images.unsplash.com/photo-1434564433046-016c0e224a9e?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=b0c02b56ccc73a8e2fd82d1943c7bfc0&auto=format&fit=crop&w=1489&q=80',
+    'https://images.unsplash.com/photo-1506520814314-95f3f942bfdf?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=20ba884511635c8b51cf1f916476dc76&auto=format&fit=crop&w=1350&q=80',
+    'https://images.unsplash.com/39/wdXqHcTwSTmLuKOGz92L_Landscape.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=2239f709435bffd736830d5366236510&auto=format&fit=crop&w=1932&q=80',
+    'https://images.unsplash.com/39/IKMsqwyaR6qN0kq48STw_annapurna.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=298e9655e206a435ed296b68594e29f7&auto=format&fit=crop&w=1350&q=80',
+    'https://images.unsplash.com/photo-1444041401850-6d9f537550c4?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=f5cdeac2b46639589a69b76b1dd3d08a&auto=format&fit=crop&w=1350&q=80'
+];
