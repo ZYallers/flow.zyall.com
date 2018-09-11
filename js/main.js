@@ -541,7 +541,11 @@
                             MasonryResize();
                         });
                     } else {
-                        $('div.bricks-loading').html('<div style="font-size: x-large;">Nothing Search</div>');
+                        $('div.bricks-loading').html(
+                            '<div style="margin: 90px 0;">' +
+                            '   <div class="fa fa-frown-o" style="font-size: -webkit-xxx-large;"></div>' +
+                            '   <div style="font-size: larger;">No matching files found.</div>' +
+                            '</div>');
                     }
                 }
             }, function (ts) {
