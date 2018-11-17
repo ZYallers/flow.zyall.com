@@ -210,6 +210,7 @@
                             var line = $.trim(tmp[i]);
                             if (line != '' && $.inArray(line.slice(0, 1), introFilter) == -1) {
                                 setTimeout(function () {
+                                    line = line.substr(0, 40) + '...';
                                     var $sha = $('[sha=' + item['sha'] + ']');
                                     if ($sha.attr('art') == '1') {
                                         $sha.find('div.entry-excerpt').html(line);
@@ -238,6 +239,7 @@
                                     var line = $.trim(tmp[i]);
                                     if (line != '' && $.inArray(line.slice(0, 1), introFilter) == -1) {
                                         setTimeout(function () {
+                                            line = line.substr(0, 40) + '...';
                                             var $sha = $('[sha=' + item['sha'] + ']');
                                             if ($sha.attr('art') == '1') {
                                                 $sha.find('div.entry-excerpt').html(line);
