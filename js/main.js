@@ -2,7 +2,7 @@
     "use strict";
     var $WIN = $(window),
         Cache = new WebStorageCache({storage: 'localStorage'}),
-        perpage = 13,
+        perpage = 12,
         searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
         repoExtn = 'repo:ZYallers/ZYaller+extension:md',
         cfg = {
@@ -166,9 +166,20 @@
         });
     };
 
+    /** 随机获取图片缓存集合 */
+    var GetOneRandImageCacheSet = [];
+
     /** GetOneRandImage */
     var GetOneRandImage = function (source) {
-        return source[Math.floor((Math.random() * source.length))];
+        var getFunc = function () {
+            return source[Math.floor((Math.random() * source.length))];
+        };
+        var res = getFunc();
+        while (GetOneRandImageCacheSet.indexOf(res) != -1) {
+            res = getFunc();
+        }
+        GetOneRandImageCacheSet.push(res);
+        return res;
     };
 
     /** get articles */
@@ -179,24 +190,27 @@
         for (var cursor = 0; cursor < len; cursor++) {
             (function (item, cursor) {
                 var container = $('div.bricks-wrapper'),
-                    grid = $('div.featured-grid'),
+                    //grid = $('div.featured-grid'),
                     slides = $('ul.slides'),
                     artTemp = $('#lists-item-template').html(),
-                    sliderTemp = $('#flexslider-template').html(),
+                    //sliderTemp = $('#flexslider-template').html(),
                     article = {
                         sha: item['sha'], intro: '', link: item['html_url'], title: item['name'].slice(0, -3),
                         meta: item['path'].split('/')[1], img: GetOneRandImage(window.SECTION_IMAGE)
                     };
+
+                article.meta = article.meta || 'php';
                 article.metalink = '/?m=' + article.meta;
                 article.meta = article.meta.toUpperCase();
 
                 // append to contain.
-                $.itemCount > 3 && grid.removeClass('hide');
+                /*$.itemCount > 3 && grid.removeClass('hide');
                 if ($.itemCount > 3 && cursor < 3) {
                     slides.append(MicroTemplate(sliderTemp, article));
                 } else {
                     container.append(MicroTemplate(artTemp, article));
-                }
+                }*/
+                container.append(MicroTemplate(artTemp, article));
 
                 // update item image and intro.
                 var isReload = true;
@@ -223,6 +237,7 @@
                         }
                     }
                 }
+
                 if (isReload) {
                     $.ajax({
                         url: item['git_url'],
@@ -237,7 +252,7 @@
                                     len = tmp.length;
                                 for (var i = 2; i < len; i++) {
                                     var line = $.trim(tmp[i]);
-                                    if (line != '' && $.inArray(line.slice(0, 1), introFilter) == -1) {
+                                    if (line != '' && introFilter.indexOf(line.slice(0, 1)) == -1) {
                                         setTimeout(function () {
                                             line = line.substr(0, 40) + '...';
                                             var $sha = $('[sha=' + item['sha'] + ']');
@@ -264,7 +279,7 @@
     /** get list data */
     var GetLists = function (success, error) {
         var keyword = GetUrlParam('q'), meta = GetUrlParam('m'), page = GetUrlParam('page') || 1,
-            query = (keyword || '') + '+path:tag' + (meta ? '/' + meta : ''),
+            query = (keyword ? keyword + '+' : '') + 'path:/tag' + (meta ? '/' + meta : ''),
             api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + perpage;
         // try to get lists from cache.
         var isReload = true;
@@ -358,7 +373,6 @@
         });
     };
 
-
     /** search */
     var MenuSearch = function () {
         var searchWrap = $('.search-wrap');
@@ -414,7 +428,7 @@
             var el = $(this);
             setTimeout(function () {
                 el.addClass('animated fadeInUp');
-            }, ctr * 200);
+            }, ctr * 300);
         });
         $WIN.on('resize', function () {
             $('.animate-this').removeClass('animate-this animated fadeInUp');
@@ -448,7 +462,7 @@
                         percentPosition: true,
                         resize: true
                     });
-                    iziToast.show({
+                    /*iziToast.show({
                         theme: 'dark',
                         timeout: 1500,
                         icon: 'fa fa-smile-o',
@@ -456,14 +470,14 @@
                         title: 'OK',
                         progressBarColor: 'rgb(0, 255, 184)',
                         message: 'Masonry resized ' + ($.masonryResizeTimes) + ' successfully.'
-                    });
+                    });*/
                 }
             }
         }, 1000);
     };
 
     /** Flex Slider */
-    var FlexSlider = function () {
+    /*var FlexSlider = function () {
         $('#featured-post-slider').flexslider({
             namespace: "flex-",
             controlsContainer: '',
@@ -476,7 +490,7 @@
             randomize: false,
             touch: true,
         });
-    };
+    };*/
 
     /** Smooth Scrolling */
     var SmoothScroll = function () {
@@ -494,7 +508,6 @@
         });
 
     };
-
 
     /** Placeholder Plugin Settings */
     var Placeholder = function () {
@@ -523,7 +536,7 @@
         SetBodyBackgroundImage();
         Preloader(function () {
             GetLists(function (lists) {
-                iziToast.show({
+                /*iziToast.show({
                     title: 'OK',
                     theme: 'dark',
                     timeout: 1500,
@@ -531,16 +544,16 @@
                     icon: 'fa fa-smile-o',
                     progressBarColor: 'rgb(0, 255, 184)',
                     message: 'Data loaded successfully.'
-                });
+                });*/
                 if (lists || lists['incomplete_results'] === false) {
                     if (lists.items.length > 0) {
                         $('div.bricks-loading').hide();
                         GetArticles(lists, function (lists) {
-                            GetPagination(lists['total_count']);
-                            FlexSlider();
-                            BricksAnimate();
                             ImagesLoaded();
                             MasonryResize();
+                            //FlexSlider();
+                            BricksAnimate();
+                            GetPagination(lists['total_count']);
                         });
                     } else {
                         $('div.bricks-loading').html(
