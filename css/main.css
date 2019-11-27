@@ -25,7 +25,7 @@
  *  01. webfonts and iconfonts - (_document-setup.scss)
  *
  * ------------------------------------------------------------------- */
-@import url("font-awesome/css/font-awesome.min.css");
+@import url("https://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css");
 @import url("micons/css/micons.min.css");
 @import url("fonts.min.css");
 
