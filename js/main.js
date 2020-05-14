@@ -5,7 +5,7 @@
         perpage = 12,
         ack1 = 'a6cdbc92e0df1e0e57f',
         ack2 = '6afcaecfb79d0a51f1bf7',
-        searchUrl = 'https://api.github.com/search/code?access_token='+ack1+ack2+'&sort=indexed&order=desc',
+        searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
         repoExtn = 'repo:ZYallers/ZYaller+extension:md',
         cfg = {
             defAnimation: "fadeInUp",    // default css animation
@@ -243,6 +243,9 @@
                 if (isReload) {
                     $.ajax({
                         url: item['git_url'],
+                        headers: {
+                            Authorization: "token "+ack1+ack2
+                        },
                         async: true,
                         timeout: 10000,
                         dataType: 'json',
@@ -294,11 +297,19 @@
         }
         if (isReload) {
             $.ajax({
-                url: api, async: true, timeout: 10000, dataType: 'json', success: function (lists) {
+                url: api, 
+                headers: {
+                    Authorization: "token "+ack1+ack2
+                },
+                async: true, 
+                timeout: 10000, 
+                dataType: 'json', 
+                success: function (lists) {
                     // set cache, cache 600 seconds.
                     Cache.isSupported() && Cache.set(encodeURI(api), lists, {exp: 600});
                     typeof(success) == 'function' && success(lists);
-                }, error: function (xhr, ts, er) {
+                }, 
+                error: function (xhr, ts, er) {
                     typeof(error) == 'function' && error(ts);
                 }
             });
