@@ -3,7 +3,7 @@
     var $WIN = $(window),
         Cache = new WebStorageCache({storage: 'localStorage'}),
         perpage = 12,
-        searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
+        searchUrl = 'https://api.github.com/search/code?access_token=dd5610cd89b16aa6a3e5fb0f877a513799740499&sort=indexed&order=desc',
         repoExtn = 'repo:ZYallers/ZYaller+extension:md',
         cfg = {
             defAnimation: "fadeInUp",    // default css animation
