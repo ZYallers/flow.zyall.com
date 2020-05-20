@@ -15,7 +15,7 @@
         'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1525466888468-cb6a1b6dc486.jpeg',
         'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1526402978125-f1d6df91cbac.jpeg',
         'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1533087053677-60bb97f0b3bb.jpeg',
-        'https://hxsupload-oss.hxsapp.com/lib/flow/image/sectbackgroundion/shitou-he-shan.jpg',
+        'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/shitou-he-shan.jpg',
         'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/stock-photo-173565125.jpg',
         'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/wdXqHcTwSTmLuKOGz92L_Landscape.jpg'
     ];
