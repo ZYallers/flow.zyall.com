@@ -26,8 +26,8 @@
  *
  * ------------------------------------------------------------------- */
 @import url("https://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css");
-@import url("micons/css/micons.min.css");
-@import url("fonts.min.css");
+@import url("https://hxsapp-test.oss-cn-hangzhou.aliyuncs.com/css/flow/plugins/micons.min.css");
+@import url("https://hxsapp-test.oss-cn-hangzhou.aliyuncs.com/css/flow/fonts.min.css");
 
 /* ===================================================================
  *  02. base style overrides - (_document-setup.scss)
