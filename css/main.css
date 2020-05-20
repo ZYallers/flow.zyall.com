@@ -25,9 +25,9 @@
  *  01. webfonts and iconfonts - (_document-setup.scss)
  *
  * ------------------------------------------------------------------- */
-@import url("https://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css");
-@import url("http://hxsapp-test.oss-cn-hangzhou.aliyuncs.com/css/flow/plugins/micons.min.css");
-@import url("fonts.css");
+@import url("//cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css");
+@import url("//hxsupload-oss.hxsapp.com/lib/flow/css/micons/css/micons.min.css");
+@import url("//hxsupload-oss.hxsapp.com/lib/flow/css/fonts.min.css");
 
 /* ===================================================================
  *  02. base style overrides - (_document-setup.scss)
@@ -1341,11 +1341,11 @@ input::-moz-focus-inner {
 }
 
 #featured-post-slider .flex-direction-nav li a.flex-prev {
-    background-image: url(../images/arrow-left.png);
+    background-image: url('//hxsupload-oss.hxsapp.com/lib/flow/image/arrow-left.png');
 }
 
 #featured-post-slider .flex-direction-nav li a.flex-next {
-    background-image: url(../images/arrow-right.png);
+    background-image: url(//hxsupload-oss.hxsapp.com/lib/flow/image/arrow-right.png);
 }
 
 #featured-post-slider .flex-direction-nav li a:hover {
@@ -1472,7 +1472,7 @@ header .logo a {
     border: none;
     width: 60px;
     height: 60px;
-    background: url("https://hxsapp-test.oss-cn-hangzhou.aliyuncs.com/image/flow/logo.jpg") no-repeat center;
+    background: url("//hxsupload-oss.hxsapp.com/lib/flow/image/logo.png") no-repeat center;
     background-size: 60px 60px;
     font: 0/0 a;
     text-shadow: none;
