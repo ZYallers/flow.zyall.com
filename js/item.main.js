@@ -374,8 +374,6 @@
             return;
         }
 
-        console.log("path", path);
-
         var isNeedReload = true;
 
         var parseItemContent = function (resp) {
@@ -383,14 +381,20 @@
                 size = resp["size"],
                 content = resp["content"];
 
-            var $itemPosters = $("#item-posters"),
+            var $headTitle = $("head").children('title').eq(0),
+                $description = $("meta[name='description']"),
+                $itemPosters = $("#item-posters"),
                 $itemTitle = $("#item-title"),
                 $itemSize = $("#item-size"),
                 $itemBody = $("#item-body"),
                 $itemTag = $("#item-tag");
 
             $itemPosters.attr("src", GetOneRandImage(window.SECTION_IMAGE));
-            $itemTitle.text(name.substring(0, name.indexOf(".md")));
+
+            var itemTitle = name.substring(0, name.indexOf(".md"));
+            $headTitle.text(itemTitle + " - Flow Your Life"); // 标题
+            $description.attr("content", itemTitle + ",Flow Your Life");
+            $itemTitle.text(itemTitle);
 
             var kb = (size / 1024).toFixed(2);
             $itemSize.text(kb + " KB");
@@ -423,7 +427,6 @@
                 dataType: 'json',
                 complete: function (xhr, ts) {
                     console.log('reload data: ', path);
-                    console.log(xhr, ts);
                     if (ts !== "success") {
                         iziToast.error({
                             timeout: 5000,
