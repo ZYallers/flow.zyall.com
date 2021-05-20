@@ -265,8 +265,6 @@ code {
     font-size: 1.4rem;
     margin: 0 .2rem;
     padding: .3rem .6rem;
-    white-space: nowrap;
-    background: #EAEAEA;
 }
 
 pre > code {
@@ -1381,10 +1379,7 @@ input::-moz-focus-inner {
  * ------------------------------------------------------------------- */
 header {
     width: 100%;
-    height: 110px;
-    /*background: #DBDBDB url(../images/escheresque_@2X.png) repeat;*/
-    /*background-size: 46px 29px;*/
-    /*border-bottom: 1px solid #E5E5E5;*/
+    height: 30rem;
 }
 
 header .header-content {
@@ -2716,7 +2711,8 @@ section {
     font-size: 1.7rem;
     line-height: 3rem;
     color: rgb(17, 17, 17);
-    padding-top: 5rem;
+    padding-top: 6rem;
+    padding-bottom: 3rem;
 }
 
 div.content-media {
@@ -2725,6 +2721,6 @@ div.content-media {
 
 @media only screen and (min-width: 768px) {
     div.content-media img {
-        width: 80%;
+        width: 70%;
     }
 }

@@ -1427,10 +1427,7 @@ input::-moz-focus-inner {
  * ------------------------------------------------------------------- */
 header {
     width: 100%;
-    height: 110px;
-    /*background: #DBDBDB url(../images/escheresque_@2X.png) repeat;*/
-    /*background-size: 46px 29px;*/
-    /*border-bottom: 1px solid #E5E5E5;*/
+    height: 25rem;
 }
 
 header .header-content {
@@ -1449,9 +1446,8 @@ header a {
 
 @media only screen and (max-width: 400px) {
     header {
-        height: 102px;
+        height: 20rem;
     }
-
 }
 
 /* ------------------------------------------------------------------- 
@@ -2354,6 +2350,7 @@ footer {
     padding-bottom: 3rem;
     font-size: 1.5rem;
     color: #8E8E8E;
+    display: none;
 }
 
 footer a,

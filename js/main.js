@@ -2,7 +2,7 @@
     "use strict";
     var $WIN = $(window),
         Cache = new WebStorageCache({storage: 'localStorage'}),
-        perpage = 16,
+        perpage = 12,
         ack1 = 'a6cdbc92e0df1e0e57f',
         ack2 = '6afcaecfb79d0a51f1bf7',
         searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
@@ -551,11 +551,12 @@
                     if (lists.items.length > 0) {
                         GetArticles(lists, function (lists) {
                             ImagesLoaded();
-                            $('div.bricks-loading').hide("fast", function () {
+                            $('div.bricks-loading').fadeOut("slow", function () {
                                 MasonryResize();
                                 //FlexSlider();
                                 BricksAnimate();
                                 GetPagination(lists['total_count']);
+                                $("footer").fadeIn("slow");
                             });
                         });
                     } else {
