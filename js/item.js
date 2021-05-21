@@ -395,7 +395,17 @@
 
             var htmlContent = (new showdown.Converter()).makeHtml(Base64.decode(content)); // 将MarkDown转为html格式的内容
             $itemBody.html(htmlContent);
-            $itemBody.find("h1").eq(0).hide(); // 重复标题处理
+
+            // 重复标题处理
+            if ($itemBody.find("h1").length > 0) {
+                $itemBody.find("h1").eq(0).hide();
+            }
+
+            // 代码高亮
+            if (window.prettyPrint) {
+                $('pre').addClass("prettyprint linenums");
+                prettyPrint();
+            }
         };
 
         if (Cache.isSupported()) {
@@ -428,24 +438,12 @@
                         return;
                     }
                     if (Cache.isSupported()) {
-                        Cache.set(path, xhr["responseText"], {exp: 3600});
+                        Cache.set(path, xhr["responseText"], {exp: 3600}); // 缓存1小时
                     }
                     parseItemContent(xhr["responseJSON"]);
                 }
             });
         }
-    };
-
-
-    /* pretty print
-     * -------------------------------------------------- */
-    var ssPrettyPrint = function () {
-        $(document).ready(function () {
-            if (window.prettyPrint) {
-                $('pre').addClass("prettyprint linenums");
-                prettyPrint();
-            }
-        });
     };
 
 
@@ -463,7 +461,6 @@
         ssSmoothScroll();
         ssPlaceholder();
         ssBackToTop();
-        ssPrettyPrint();
     })();
 
 })(jQuery);
