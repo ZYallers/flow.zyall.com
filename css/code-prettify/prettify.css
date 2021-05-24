@@ -157,3 +157,7 @@ li.L3,
 li.L5,
 li.L7,
 li.L9 { background: #eee } */
+
+pre.linenums li::marker {
+    font-size: 1.4rem;
+}
