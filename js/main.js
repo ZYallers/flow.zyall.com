@@ -3,8 +3,7 @@
     var $WIN = $(window),
         Cache = new WebStorageCache({storage: 'localStorage'}),
         perpage = 12,
-        ack1 = 'a6cdbc92e0df1e0e57f',
-        ack2 = '6afcaecfb79d0a51f1bf7',
+        ot = 'Z2hwX2dHWDRPcXBlbFNCRXM1bDNxdmJvdFN6WEJXOXVhMjMzNXJlMQ==',
         searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
         repoExtn = 'repo:ZYallers/ZYaller+extension:md',
         cfg = {
@@ -254,7 +253,7 @@
                 if (isNeedReload) {
                     $.ajax({
                         url: item['git_url'],
-                        headers: {Authorization: "token " + ack1 + ack2},
+                        headers: {Authorization: "token " + Base64.decode(ot)},
                         async: true, // 异步方式
                         timeout: 10000, // 10秒
                         dataType: 'json',
@@ -305,7 +304,7 @@
         if (isNeedReload) {
             $.ajax({
                 url: api,
-                headers: {Authorization: "token " + ack1 + ack2},
+                headers: {Authorization: "token " + Base64.decode(ot)},
                 async: true,  // 异步方式
                 timeout: 10000,  // 10秒
                 dataType: 'json',
