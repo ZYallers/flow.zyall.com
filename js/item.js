@@ -354,8 +354,8 @@
 
     /** ssGetContent */
     var ssGetContent = function () {
-        var path = GetUrlParam("path");
-        if (path === "") {
+        var iPath = GetUrlParam("i");
+        if (iPath === null || iPath === "") {
             iziToast.error({
                 timeout: 5000,
                 icon: 'fa fa-frown-o',
@@ -365,6 +365,8 @@
             });
             return;
         }
+
+        var path = Base64.decode(iPath);
 
         var isNeedReload = true;
 
@@ -411,7 +413,7 @@
         };
 
         if (Cache.isSupported()) {
-            var str = Cache.get(path);
+            var str = Cache.get(iPath);
             if (str) {
                 isNeedReload = false;
                 console.log('read from cache: ', path);
@@ -439,7 +441,7 @@
                         return;
                     }
                     if (Cache.isSupported()) {
-                        Cache.set(path, xhr["responseText"], {exp: 3600}); // 缓存1小时
+                        Cache.set(iPath, xhr["responseText"], {exp: 3600}); // 缓存1小时
                     }
                     parseItemContent(xhr["responseJSON"]);
                 }

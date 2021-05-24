@@ -200,7 +200,7 @@
                     //sliderTemp = $('#flexslider-template').html(),
                     article = {
                         sha: item['sha'], intro: '',
-                        link: '/item.html?path=' + item['path'],
+                        link: '/item.html?i=' + Base64.encode(item['path']),
                         title: item['name'].slice(0, -3),
                         meta: item['path'].split('/')[1],
                         img: GetOneRandImage(window.SECTION_IMAGE)
