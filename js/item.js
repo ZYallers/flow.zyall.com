@@ -353,7 +353,7 @@
 
 
     /** ssGetContent */
-    var ssGetContent = function () {
+    var ssGetContent = function (callback) {
         var iPath = GetUrlParam("i");
         if (iPath === null || iPath === "") {
             iziToast.error({
@@ -418,6 +418,7 @@
                 isNeedReload = false;
                 console.log('read from cache: ', path);
                 parseItemContent(JSON.parse(str));
+                typeof (callback) == 'function' && callback();
             }
         }
 
@@ -444,9 +445,92 @@
                         Cache.set(iPath, xhr["responseText"], {exp: 3600}); // 缓存1小时
                     }
                     parseItemContent(xhr["responseJSON"]);
+                    typeof (callback) == 'function' && callback();
                 }
             });
         }
+    };
+
+    /** loadJs */
+    var loadJs = function (d, a) {
+        var c = document.getElementsByTagName("head")[0] || document.head || document.documentElement;
+        var b = document.createElement("script");
+        b.setAttribute("type", "text/javascript");
+        b.setAttribute("charset", "UTF-8");
+        b.setAttribute("src", d);
+        if (typeof a === "function") {
+            if (window.attachEvent) {
+                b.onreadystatechange = function () {
+                    var e = b.readyState;
+                    if (e === "loaded" || e === "complete") {
+                        b.onreadystatechange = null;
+                        a();
+                    }
+                }
+            } else {
+                b.onload = a;
+            }
+        }
+        c.appendChild(b);
+    };
+
+    var ssSohuChangYan = function () {
+        var iPath = GetUrlParam("i");
+        if (iPath === null || iPath === "") {
+            return;
+        }
+
+        $("#SOHUCS").attr("sid", iPath);
+
+        $(window).on('scroll', function () {
+            var mobileWidth = 415;
+            var clientWidth = window.innerWidth || document.documentElement.clientWidth;
+            var minHeight = clientWidth < 500 ? 700 : 400;
+
+            if ($(document).height() - $(window).height() - $(window).scrollTop() > minHeight) {
+                return;
+            }
+
+            $(window).off('scroll');
+            $("#SOHUCS").parent().slideDown();
+
+            var appid = 'cyvtmo2ww';
+            var conf = 'prod_2245ad762922c6b6c41386af7264cdad';
+
+            if (clientWidth < mobileWidth) {
+                var head = document.getElementsByTagName('head')[0] || document.head || document.documentElement;
+                var script = document.createElement('script');
+                script.id = 'changyan_mobile_js';
+                script.src = 'https://cy-cdn.kuaizhan.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf;
+                head.appendChild(script);
+            } else {
+                loadJs("https://cy-cdn.kuaizhan.com/upload/changyan.js", function () {
+                    window.changyan.api.config({appid: appid, conf: conf});
+                });
+            }
+
+            setTimeout(function () {
+                $("div.bricks-loading").slideUp("normal", function () {
+                    $("#SOHUCS").slideDown("slow", function () {
+                        if(clientWidth < mobileWidth){
+                            $("div.list-footer-wrapper-wap").remove();
+                            setTimeout(function () {
+                                $("span.prop-ico").parent().remove();
+                            }, 1000);
+                        }else{
+                            $("div.module-cmt-footer").remove();
+                            setTimeout(function () {
+                                $("span.click-prop-gw").each(function () {
+                                    $(this).prev().remove();
+                                    $(this).remove();
+                                });
+                            }, 1000);
+                        }
+                    });
+                });
+            }, 3000);
+
+        });
     };
 
 
@@ -454,7 +538,7 @@
       * ------------------------------------------------------ */
     (function ssInit() {
         ssBodyBackgroundImage();
-        ssGetContent();
+        ssGetContent(ssSohuChangYan);
         ssPreloader();
         ssSuperFish();
         ssMobileNav();
