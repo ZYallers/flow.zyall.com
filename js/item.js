@@ -397,7 +397,9 @@
             $itemTag.attr("href", "/?m=" + tag[1]);
             $itemTag.text(tag[1].toUpperCase());
 
-            var htmlContent = (new showdown.Converter()).makeHtml(Base64.decode(content)); // 将MarkDown转为html格式的内容
+            showdown.setFlavor('github');
+            var conv = new showdown.Converter();
+            var htmlContent = conv.makeHtml(Base64.decode(content)); // 将MarkDown转为html格式的内容
             $itemBody.html(htmlContent);
 
             // 重复标题处理
