@@ -1,0 +1,94 @@
+/* format quote & format link
+ * --------------------------------------- */
+.format-quote,
+.format-link {
+    text-align: center;
+}
+
+.format-quote .entry-thumb,
+.format-link .entry-thumb {
+    display: table;
+    background: #FFFFFF;
+    padding: 1.8rem 2.8rem 3rem;
+    min-height: 324px;
+    width: 100%;
+    position: relative;
+}
+
+.format-quote .entry-thumb::before,
+.format-link .entry-thumb::before {
+    content: "\e920";
+    font-family: "icomoon";
+    font-size: 3rem;
+    color: #ccc;
+    position: absolute;
+    top: 3.3rem;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+}
+
+.format-quote blockquote::before {
+    display: none;
+}
+
+.format-quote blockquote,
+.format-link .link-wrap {
+    display: table-cell;
+    margin: 0;
+    padding-left: 0;
+    vertical-align: middle;
+}
+
+.format-quote blockquote p,
+.format-link .link-wrap p {
+    font-family: "montserrat-bold", sans-serif;
+    padding: 6rem 0 0 0;
+    font-size: 2.2rem;
+    line-height: 1.636;
+}
+
+.format-quote cite,
+.format-link cite {
+    display: block;
+    font-family: "muli-regular", sans-serif;
+    font-size: 1.5rem;
+    font-style: normal;
+    line-height: 1.4;
+    color: #999999;
+}
+
+.format-quote cite::before,
+.format-link cite::before {
+    display: none;
+}
+
+.format-quote cite a,
+.format-quote cite a:visited {
+    color: #999999;
+    border: none;
+}
+
+.format-link .entry-thumb::before {
+    content: "\e96b";
+    font-size: 3.6rem;
+    color: #CCCCCC;
+}
+
+.format-link .link-wrap cite:before {
+    display: none;
+}
+
+.format-link .link-wrap cite a,
+.format-link .link-wrap cite a:visited {
+    color: #999999;
+    display: inline-block;
+    padding-bottom: .3rem;
+}
+
+.format-link .link-wrap cite a:hover,
+.format-link .link-wrap cite a:focus {
+    color: #000000;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}

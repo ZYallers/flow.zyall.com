@@ -1,0 +1,153 @@
+/* ===================================================================
+ *  05. forms - (_forms.scss)
+ *
+ * ------------------------------------------------------------------- */
+fieldset {
+    border: none;
+}
+
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"],
+textarea,
+select {
+    display: block;
+    height: 6rem;
+    padding: 1.5rem 2.5rem;
+    border: 0;
+    outline: none;
+    vertical-align: middle;
+    color: rgba(0, 0, 0, 0.7);
+    font-family: "roboto-regular", sans-serif;
+    font-size: 1.5rem;
+    line-height: 3rem;
+    max-width: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+.ss-custom-select {
+    position: relative;
+    padding: 0;
+}
+
+.ss-custom-select select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+    text-indent: 0.01px;
+    text-overflow: '';
+    margin: 0;
+    line-height: 3rem;
+    vertical-align: middle;
+}
+
+.ss-custom-select select option {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.ss-custom-select select::-ms-expand {
+    display: none;
+}
+
+.ss-custom-select::after {
+    content: '\f0d7';
+    font-family: 'FontAwesome';
+    position: absolute;
+    top: 50%;
+    right: 1.5rem;
+    margin-top: -10px;
+    bottom: auto;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 18px;
+    text-align: center;
+    pointer-events: none;
+    color: #252525;
+}
+
+/* IE9 and below */
+.oldie .ss-custom-select::after {
+    display: none;
+}
+
+textarea {
+    min-height: 25rem;
+}
+
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+    background: #151515;
+    color: white;
+}
+
+label,
+legend {
+    font-family: "montserrat-bold", sans-serif;
+    font-size: 1.4rem;
+    margin-bottom: .6rem;
+    color: black;
+    display: block;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    display: inline;
+}
+
+label > .label-text {
+    display: inline-block;
+    margin-left: 1rem;
+    font-family: "roboto-regular", sans-serif;
+    line-height: inherit;
+}
+
+label > input[type="checkbox"],
+label > input[type="radio"] {
+    margin: 0;
+    position: relative;
+    top: .15rem;
+}
+
+/**
+ * Style Placeholder Text
+ */
+::-webkit-input-placeholder {
+    color: #777777;
+}
+
+:-moz-placeholder {
+    color: #777777; /* Firefox 18- */
+}
+
+::-moz-placeholder {
+    color: #777777; /* Firefox 19+ */
+}
+
+:-ms-input-placeholder {
+    color: #777777;
+}
+
+.placeholder {
+    color: #777777 !important;
+}

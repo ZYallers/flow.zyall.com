@@ -1,0 +1,45 @@
+/**
+ * Pull Quotes
+ * -----------
+ * markup:
+ *
+ * <aside class="pull-quote">
+ *		<blockquote>
+ *			<p></p>
+ *		</blockquote>
+ *	</aside>
+ *
+ * --------------------------------------------------------------------- */
+.pull-quote {
+    position: relative;
+    padding: 2.1rem 3rem 2.1rem 0px;
+}
+
+.pull-quote:before,
+.pull-quote:after {
+    height: 1em;
+    position: absolute;
+    font-size: 10rem;
+    font-family: Arial, Sans-Serif;
+    color: rgba(0, 0, 0, 0.2);
+}
+
+.pull-quote:before {
+    content: "\201C";
+    top: 3.9rem;
+    left: 0;
+}
+
+.pull-quote:after {
+    content: '\201D';
+    bottom: -4.8rem;
+    right: 0;
+}
+
+.pull-quote blockquote {
+    margin: 0;
+}
+
+.pull-quote blockquote:before {
+    content: none;
+}

@@ -1,0 +1,200 @@
+/*  featured post slider */
+#featured-post-slider {
+    position: relative;
+}
+
+.featured-grid,
+.featured-post-slide {
+    height: 600px;
+}
+
+.featured-post-slide {
+    position: relative;
+    background-color: #FFFFFF;
+    width: 100%;
+    padding: 6rem 15% 3rem 15%;
+    text-align: center;
+    display: table;
+}
+
+.featured-post-slide .post-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.featured-post-slide .overlay {
+    background-color: rgba(0, 0, 0, 0.3);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+.featured-post-slide:hover .overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.featured-post-slide .post-content {
+    display: table-cell;
+    position: relative;
+    vertical-align: middle;
+    z-index: 500;
+}
+
+.featured-post-slide .entry-meta {
+    font-family: "muli-regular", sans-serif;
+    margin: -3rem 0 0.9rem 0;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.412;
+}
+
+.featured-post-slide .entry-meta li {
+    display: inline-block;
+    margin: 0 3px;
+    padding: 0;
+}
+
+.featured-post-slide .entry-meta li a {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.featured-post-slide .entry-meta li a:hover,
+.featured-post-slide .entry-meta li a:focus {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.featured-post-slide .slide-title {
+    font-family: "montserrat-bold", sans-serif;
+    font-size: 3.8rem;
+    line-height: 1.421;
+    margin-bottom: 3rem;
+    color: #FFFFFF;
+}
+
+.featured-post-slide .slide-title a {
+    color: #FFFFFF;
+}
+
+.featured-post-slide .slide-title a:hover,
+.featured-post-slide .slide-title a:focus {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* featured-post-slider direction nav
+ * --------------------------------------------------------- */
+#featured-post-slider .flex-direction-nav li {
+    position: absolute;
+    top: 50%;
+    padding: 0;
+    margin-top: -30px;
+    height: 60px;
+    width: 60px;
+    z-index: 500;
+}
+
+#featured-post-slider .flex-direction-nav li a {
+    font: 0/0 a;
+    text-shadow: none;
+    color: transparent;
+    display: block;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px 16px;
+    background-color: black;
+    opacity: .7;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+#featured-post-slider .flex-direction-nav li a.flex-prev {
+    background-image: url('//hxsupload-oss.hxsapp.com/lib/flow/image/arrow-left.png');
+}
+
+#featured-post-slider .flex-direction-nav li a.flex-next {
+    background-image: url(//hxsupload-oss.hxsapp.com/lib/flow/image/arrow-right.png);
+}
+
+#featured-post-slider .flex-direction-nav li a:hover {
+    opacity: 1;
+}
+
+#featured-post-slider .flex-direction-nav li.flex-nav-prev {
+    left: 0;
+}
+
+#featured-post-slider .flex-direction-nav li.flex-nav-next {
+    right: 0;
+}
+
+/* responsive:
+/* featured slider
+/* ------------------------------------------------------------------- */
+@media only screen and (max-width: 1024px) {
+    .featured-post-slide .slide-title {
+        font-size: 3.7rem;
+    }
+
+}
+
+@media only screen and (max-width: 768px) {
+    .featured-post-slide {
+        padding: 6rem 10% 3rem 10%;
+    }
+
+    .featured-post-slide .entry-meta {
+        font-size: 1.5rem;
+    }
+
+    .featured-post-slide .slide-title {
+        font-size: 3.2rem;
+    }
+
+}
+
+@media only screen and (max-width: 600px) {
+    .featured-grid,
+    .featured-post-slide {
+        height: 558px;
+    }
+
+    .featured-post-slide .slide-title {
+        font-size: 3rem;
+    }
+
+    #featured-post-slider .flex-direction-nav li {
+        top: auto;
+        margin-top: auto;
+        bottom: 0;
+    }
+
+}
+
+@media only screen and (max-width: 400px) {
+    .featured-grid,
+    .featured-post-slide {
+        height: 450px;
+    }
+
+    .featured-post-slide .slide-title {
+        font-size: 2.7rem;
+    }
+
+}
