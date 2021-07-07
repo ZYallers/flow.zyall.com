@@ -1,8 +1,11 @@
 (function ($) {
     "use strict";
     var $WIN = $(window),
+        footer = $('footer'),
+        articleContainer = $('#article-container'),
+        listsItemTemplate = $('#lists-item-template').html(),
         Cache = new WebStorageCache({storage: 'localStorage'}),
-        perpage = 12,
+        perpage = 10,
         ot = 'Z2hwX2dHWDRPcXBlbFNCRXM1bDNxdmJvdFN6WEJXOXVhMjMzNXJlMQ==',
         searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
         repoExtn = 'repo:ZYallers/ZYaller+extension:md',
@@ -191,14 +194,10 @@
         var items = lists.items, len = items.length;
         $.itemCount = len;
         $.reoadedItemCount = 0;
-        var container = $('div.bricks-wrapper');
         for (var cursor = 0; cursor < len; cursor++) {
             (function (item, cursor) {
-                var slides = $('ul.slides'),
-                    artTemp = $('#lists-item-template').html(),
-                    //grid = $('div.featured-grid'),
-                    //sliderTemp = $('#flexslider-template').html(),
-                    article = {
+                $('ul.slides');
+                var article = {
                         sha: item['sha'], intro: '',
                         link: '/item.html?i=' + Base64.encode(item['path']),
                         title: item['name'].slice(0, -3),
@@ -210,14 +209,7 @@
                 article.metalink = '/?m=' + article.meta;
                 article.meta = article.meta.toUpperCase();
 
-                // append to contain.
-                /*$.itemCount > 3 && grid.removeClass('hide');
-                if ($.itemCount > 3 && cursor < 3) {
-                    slides.append(MicroTemplate(sliderTemp, article));
-                } else {
-                    container.append(MicroTemplate(artTemp, article));
-                }*/
-                container.append(MicroTemplate(artTemp, article));
+                articleContainer.append(MicroTemplate(listsItemTemplate, article));
 
                 // update item image and intro.
                 var isNeedReload = true;
@@ -239,7 +231,7 @@
                     var content = Cache.get(item['sha']);
                     if (content) {
                         isNeedReload = false;
-                        console.log('read from cache, item: ', item['sha'], 'length: ', $.reoadedItemCount);
+                        //console.log('read from cache, item: ', item['sha'], 'length: ', $.reoadedItemCount);
                         var tmp = content.split('\n'), len = tmp.length;
                         for (var i = 2; i < len; i++) {
                             if (addMeta2Article($.trim(tmp[i]))) {
@@ -258,7 +250,7 @@
                         timeout: 10000, // 10秒
                         dataType: 'json',
                         complete: function (xhr, ts) {
-                            console.log('reload data, item: ', item['sha'], 'length: ', $.reoadedItemCount);
+                            //console.log('reload data, item: ', item['sha'], 'length: ', $.reoadedItemCount);
                             if (ts === 'success') {
                                 var content = Base64.decode(xhr['responseJSON']['content']),
                                     tmp = content.split('\n'),
@@ -279,9 +271,7 @@
 
             })(items[cursor], cursor);
         }
-
-        typeof (callback) == 'function' && callback(lists);
-
+        callback(lists);
     };
 
     /** get list data */
@@ -292,13 +282,12 @@
             query = (keyword ? keyword + '+' : '') + 'path:/tag' + (meta ? '/' + meta : ''),
             api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + perpage;
 
-        // try to get lists from cache.
         var isNeedReload = true;
         if (Cache.isSupported()) {
             var lists = Cache.get(encodeURI(api));
             if (lists) {
                 isNeedReload = false;
-                typeof (success) == 'function' && success(lists);
+                success(lists);
             }
         }
         if (isNeedReload) {
@@ -309,14 +298,13 @@
                 timeout: 10000,  // 10秒
                 dataType: 'json',
                 success: function (lists) {
-                    // set cache, cache 600 seconds.
                     if (Cache.isSupported()) {
-                        Cache.set(encodeURI(api), lists, {exp: 600});
+                        Cache.set(encodeURI(api), lists, {exp: 600}); // cache 10min
                     }
-                    typeof (success) == 'function' && success(lists);
+                    success(lists);
                 },
                 error: function (xhr, ts, er) {
-                    typeof (error) == 'function' && error(ts);
+                    error(ts);
                 }
             });
         }
@@ -433,42 +421,16 @@
         searchField.attr({placeholder: 'Type Your Keywords', autocomplete: 'off'});
     };
 
-    /** imagesLoaded */
-    var ImagesLoaded = function () {
-        $('div.bricks-wrapper').imagesLoaded(function () {
-            console.log('images loaded');
-            $.isLoadedImage = true;
-        });
-    };
-
     /** animate bricks */
     var BricksAnimate = function () {
-        $('.animate-this').each(function (ctr) {
+        $('article.animate-this').each(function (ctr) {
             var el = $(this);
-            setTimeout(function () {
-                el.addClass('animated fadeInUp');
-            }, ctr * 300);
+            setTimeout(function () {el.addClass('animated fadeInUp');}, ctr * 400);
         });
         $WIN.on('resize', function () {
-            $('.animate-this').removeClass('animate-this animated fadeInUp');
+            $('article.animate-this').removeClass('animate-this animated fadeInUp');
         });
     };
-
-    /** Flex Slider */
-    /*var FlexSlider = function () {
-        $('#featured-post-slider').flexslider({
-            namespace: "flex-",
-            controlsContainer: '',
-            animation: 'fade',
-            controlNav: false,
-            directionNav: true,
-            smoothHeight: false,
-            slideshowSpeed: 7000,
-            animationSpeed: 600,
-            randomize: false,
-            touch: true,
-        });
-    };*/
 
     /** Smooth Scrolling */
     var SmoothScroll = function () {
@@ -510,31 +472,23 @@
     };
 
     /** Masonry resize cron task */
-    var MasonryResize = function () {
+    var MasonryResize = function (callback) {
         var masonryResizeMaxTimes = 10;
         $.masonryResizeTimes = 0;
         $.masonryResizeTask = setInterval(function () {
-            console.log('try masonry resize...', $.masonryResizeTimes);
+            //console.log('try masonry resize...', $.masonryResizeTimes);
             $.masonryResizeTimes++;
             if ($.masonryResizeTimes > masonryResizeMaxTimes) {
-                console.log('try masonry resize more than maximum ', masonryResizeMaxTimes);
+                //console.log('try masonry resize more than maximum ', masonryResizeMaxTimes);
                 clearInterval($.masonryResizeTask);
-                iziToast.error({
-                    timeout: 5000,
-                    icon: 'fa fa-frown-o',
-                    position: 'topRight',
-                    title: 'TIMEOUT',
-                    message: 'Try masonry resize more than maximum!'
-                });
+                iziToast.error({timeout: 5000, icon: 'fa fa-frown-o', position: 'topRight', title: 'TIMEOUT', message: 'Try masonry resize more than maximum!'});
             } else {
-                if ($.itemCount > 0 && $.isLoadedImage && $.reoadedItemCount === $.itemCount) {
-                    console.log('masonry resized');
+                if ($.itemCount > 0 && $.reoadedItemCount === $.itemCount) {
+                    //console.log('masonry resized');
                     clearInterval($.masonryResizeTask);
-                    $('div.bricks-wrapper').masonry({
-                        itemSelector: '.entry',
-                        columnWidth: '.grid-sizer',
-                        percentPosition: true,
-                        resize: true
+                    articleContainer.fadeIn("slow",function () {
+                        articleContainer.masonry({itemSelector: '.entry', columnWidth: '.grid-sizer', percentPosition: true, resize: true});
+                        callback();
                     });
                 }
             }
@@ -549,18 +503,18 @@
                 if (lists || lists['incomplete_results'] === false) {
                     if (lists.items.length > 0) {
                         GetArticles(lists, function (lists) {
-                            ImagesLoaded();
-                            $('div.bricks-loading').fadeOut("slow", function () {
-                                MasonryResize();
-                                //FlexSlider();
+                            articleContainer.imagesLoaded(function () {
+                                //console.log('images loaded');
                                 BricksAnimate();
-                                GetPagination(lists['total_count']);
-                                $("footer").fadeIn("slow");
+                                MasonryResize(function () {
+                                    GetPagination(lists['total_count']);
+                                    footer.fadeIn("slow");
+                                });
                             });
                         });
                     } else {
-                        $('div.bricks-loading').html(
-                            '<div style="margin: 90px 0;">' +
+                        articleContainer.html(
+                            '<div style="text-align: center;margin: 10rem 0">' +
                             '   <div class="fa fa-frown-o" style="font-size: -webkit-xxx-large;"></div>' +
                             '   <div style="font-size: larger;">No matching files found.</div>' +
                             '</div>');
@@ -571,13 +525,7 @@
                 if (ts === 'timeout') {
                     msg = 'Network slow, try reload it!';
                 }
-                iziToast.error({
-                    timeout: 5000,
-                    icon: 'fa fa-frown-o',
-                    position: 'topRight',
-                    title: ts.toUpperCase(),
-                    message: msg
-                });
+                iziToast.error({timeout: 5000, icon: 'fa fa-frown-o', position: 'topRight', title: ts.toUpperCase(), message: msg});
             });
         });
         SuperFish();
