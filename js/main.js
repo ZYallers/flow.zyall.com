@@ -5,7 +5,7 @@
         articleContainer = $('#article-container'),
         listsItemTemplate = $('#lists-item-template').html(),
         Cache = new WebStorageCache({storage: 'localStorage'}),
-        perpage = 10,
+        perpage = 12,
         ot = 'Z2hwX2dHWDRPcXBlbFNCRXM1bDNxdmJvdFN6WEJXOXVhMjMzNXJlMQ==',
         searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
         repoExtn = 'repo:ZYallers/ZYaller+extension:md',
@@ -231,7 +231,7 @@
                     var content = Cache.get(item['sha']);
                     if (content) {
                         isNeedReload = false;
-                        //console.log('read from cache, item: ', item['sha'], 'length: ', $.reoadedItemCount);
+                        console.log('read from cache, item: ', item['sha'], 'length: ', $.reoadedItemCount);
                         var tmp = content.split('\n'), len = tmp.length;
                         for (var i = 2; i < len; i++) {
                             if (addMeta2Article($.trim(tmp[i]))) {
@@ -250,7 +250,7 @@
                         timeout: 10000, // 10秒
                         dataType: 'json',
                         complete: function (xhr, ts) {
-                            //console.log('reload data, item: ', item['sha'], 'length: ', $.reoadedItemCount);
+                            console.log('reload data, item: ', item['sha'], 'length: ', $.reoadedItemCount);
                             if (ts === 'success') {
                                 var content = Base64.decode(xhr['responseJSON']['content']),
                                     tmp = content.split('\n'),
@@ -287,6 +287,7 @@
             var lists = Cache.get(encodeURI(api));
             if (lists) {
                 isNeedReload = false;
+                console.log('read from cache, meta:', meta, ',page:', page, ',query', keyword);
                 success(lists);
             }
         }
@@ -301,6 +302,7 @@
                     if (Cache.isSupported()) {
                         Cache.set(encodeURI(api), lists, {exp: 600}); // cache 10min
                     }
+                    console.log('reload data, meta:', meta, ',page:', page, ',query', keyword);
                     success(lists);
                 },
                 error: function (xhr, ts, er) {
@@ -425,7 +427,7 @@
     var BricksAnimate = function () {
         $('article.animate-this').each(function (ctr) {
             var el = $(this);
-            setTimeout(function () {el.addClass('animated fadeInUp');}, ctr * 400);
+            setTimeout(function () {el.addClass('animated fadeInUp');}, ctr * 200);
         });
         $WIN.on('resize', function () {
             $('article.animate-this').removeClass('animate-this animated fadeInUp');
@@ -476,15 +478,15 @@
         var masonryResizeMaxTimes = 10;
         $.masonryResizeTimes = 0;
         $.masonryResizeTask = setInterval(function () {
-            //console.log('try masonry resize...', $.masonryResizeTimes);
+            console.log('try masonry resize...', $.masonryResizeTimes);
             $.masonryResizeTimes++;
             if ($.masonryResizeTimes > masonryResizeMaxTimes) {
-                //console.log('try masonry resize more than maximum ', masonryResizeMaxTimes);
+                console.log('try masonry resize more than maximum ', masonryResizeMaxTimes);
                 clearInterval($.masonryResizeTask);
                 iziToast.error({timeout: 5000, icon: 'fa fa-frown-o', position: 'topRight', title: 'TIMEOUT', message: 'Try masonry resize more than maximum!'});
             } else {
                 if ($.itemCount > 0 && $.reoadedItemCount === $.itemCount) {
-                    //console.log('masonry resized');
+                    console.log('masonry resized');
                     clearInterval($.masonryResizeTask);
                     articleContainer.fadeIn("slow",function () {
                         articleContainer.masonry({itemSelector: '.entry', columnWidth: '.grid-sizer', percentPosition: true, resize: true});
@@ -504,7 +506,7 @@
                     if (lists.items.length > 0) {
                         GetArticles(lists, function (lists) {
                             articleContainer.imagesLoaded(function () {
-                                //console.log('images loaded');
+                                console.log('images loaded');
                                 BricksAnimate();
                                 MasonryResize(function () {
                                     GetPagination(lists['total_count']);
