@@ -14,111 +14,7 @@
             scrollDuration: 800,           // smoothscroll duration
             statsDuration: 4000            // stats animation duration
         },
-        introFilter = ['#', '>', '`', '<', '/', '*', '-', '!'];
-
-    /** Base64 encode/decode see http://www.webtoolkit.info */
-    var Base64 = {
-        // private property
-        _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
-
-        // public method for encoding
-        encode: function (input) {
-            var output = "";
-            var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-            var i = 0;
-            input = Base64._utf8_encode(input);
-            while (i < input.length) {
-                chr1 = input.charCodeAt(i++);
-                chr2 = input.charCodeAt(i++);
-                chr3 = input.charCodeAt(i++);
-                enc1 = chr1 >> 2;
-                enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-                enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-                enc4 = chr3 & 63;
-                if (isNaN(chr2)) {
-                    enc3 = enc4 = 64;
-                } else if (isNaN(chr3)) {
-                    enc4 = 64;
-                }
-
-                output = output +
-                    this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) +
-                    this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
-            }
-            return output;
-        },
-
-        // public method for decoding
-        decode: function (input) {
-            var output = "";
-            var chr1, chr2, chr3;
-            var enc1, enc2, enc3, enc4;
-            var i = 0;
-
-            input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-            while (i < input.length) {
-                enc1 = this._keyStr.indexOf(input.charAt(i++));
-                enc2 = this._keyStr.indexOf(input.charAt(i++));
-                enc3 = this._keyStr.indexOf(input.charAt(i++));
-                enc4 = this._keyStr.indexOf(input.charAt(i++));
-                chr1 = (enc1 << 2) | (enc2 >> 4);
-                chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-                chr3 = ((enc3 & 3) << 6) | enc4;
-                output = output + String.fromCharCode(chr1);
-                if (enc3 != 64) {
-                    output = output + String.fromCharCode(chr2);
-                }
-
-                if (enc4 != 64) {
-                    output = output + String.fromCharCode(chr3);
-                }
-            }
-            output = Base64._utf8_decode(output);
-            return output;
-        },
-
-        // private method for UTF-8 encoding
-        _utf8_encode: function (string) {
-            string = string.replace(/\r\n/g, "\n");
-            var utftext = "";
-            for (var n = 0; n < string.length; n++) {
-                var c = string.charCodeAt(n);
-                if (c < 128) {
-                    utftext += String.fromCharCode(c);
-                } else if ((c > 127) && (c < 2048)) {
-                    utftext += String.fromCharCode((c >> 6) | 192);
-                    utftext += String.fromCharCode((c & 63) | 128);
-                } else {
-                    utftext += String.fromCharCode((c >> 12) | 224);
-                    utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-                    utftext += String.fromCharCode((c & 63) | 128);
-                }
-            }
-            return utftext;
-        },
-
-        // private method for UTF-8 decoding
-        _utf8_decode: function (utftext) {
-            var string = "", i = 0, c = 0, c1 = 0, c2 = 0, c3 = 0;
-            while (i < utftext.length) {
-                c = utftext.charCodeAt(i);
-                if (c < 128) {
-                    string += String.fromCharCode(c);
-                    i++;
-                } else if ((c > 191) && (c < 224)) {
-                    c2 = utftext.charCodeAt(i + 1);
-                    string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
-                    i += 2;
-                } else {
-                    c2 = utftext.charCodeAt(i + 1);
-                    c3 = utftext.charCodeAt(i + 2);
-                    string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
-                    i += 3;
-                }
-            }
-            return string;
-        }
-    };
+        introFilter = ['#', '>', '`', '<', '/', '*', '-', '!', '['];
 
     /** get url params */
     var GetUrlParam = function (name) {
@@ -157,7 +53,7 @@
         }
 
         $page.html(arr.join('\n'));
-        $page.parent().fadeIn();
+        $page.parent().fadeIn('slow');
     };
 
     /** template html */
@@ -193,73 +89,62 @@
     var GetArticles = function (lists, callback) {
         var items = lists.items, len = items.length;
         $.itemCount = len;
-        $.reoadedItemCount = 0;
+        $.itemLoadedCount = 0;
+        // update item image and intro.
+        var addMeta2Article = function (sha, line) {
+            if (line !== '' && $.inArray(line.slice(0, 1), introFilter) === -1) {
+                $("#" + sha).find('div.entry-excerpt').text(line.substr(0, 50) + '...');
+                return true;
+            }
+            return false;
+        }
         for (var cursor = 0; cursor < len; cursor++) {
             (function (item, cursor) {
-                $('ul.slides');
                 var article = {
-                        sha: item['sha'], intro: '',
-                        link: '/item.html?i=' + Base64.encode(item['path']),
-                        title: item['name'].slice(0, -3),
-                        meta: item['path'].split('/')[1],
-                        img: GetOneRandImage(window.SECTION_IMAGE)
-                    };
-
+                    sha: item['sha'],
+                    intro: '',
+                    link: '/item.html?s=' + item['sha'],
+                    title: item['name'].slice(0, -3),
+                    meta: item['path'].split('/')[1],
+                    img: GetOneRandImage(window.SECTION_IMAGE)
+                };
                 article.meta = article.meta || 'php';
                 article.metalink = '/?m=' + article.meta;
                 article.meta = article.meta.toUpperCase();
-
                 articleContainer.append(MicroTemplate(listsItemTemplate, article));
-
-                // update item image and intro.
                 var isNeedReload = true;
-                var addMeta2Article = function (line) {
-                    if (line !== '' && $.inArray(line.slice(0, 1), introFilter) === -1) {
-                        line = line.substr(0, 40) + '...';
-                        var $sha = $("#" + item['sha']);
-                        if ($sha.attr('art') === '1') {
-                            $sha.find('div.entry-excerpt').html(line);
-                        } else {
-                            $sha.find('ul.entry-meta').children('li').eq(1).html(line);
-                        }
-                        return true;
-                    }
-                    return false;
-                }
-
                 if (Cache.isSupported()) {
-                    var content = Cache.get(item['sha']);
-                    if (content) {
+                    var text = Cache.get(article.sha);
+                    if (text) {
                         isNeedReload = false;
-                        console.log('read from cache, item: ', item['sha'], 'length: ', $.reoadedItemCount);
-                        var tmp = content.split('\n'), len = tmp.length;
-                        for (var i = 2; i < len; i++) {
-                            if (addMeta2Article($.trim(tmp[i]))) {
-                                $.reoadedItemCount++;
+                        var textJson = JSON.parse(text);
+                        var contentHtml = Base64.decode(textJson['content']);
+                        var tmp = contentHtml.split('\n');
+                        for (var i = 2; i < tmp.length; i++) {
+                            if (addMeta2Article(article.sha, $.trim(tmp[i]))) {
+                                $.itemLoadedCount++;
+                                console.log('read from cache, sha:', article.sha, 'loaded:', $.itemLoadedCount);
                                 break;
                             }
                         }
                     }
                 }
-
                 if (isNeedReload) {
                     $.ajax({
-                        url: item['git_url'],
+                        url: 'https://api.github.com/repos/ZYallers/ZYaller/git/blobs/' + article.sha,
                         headers: {Authorization: "token " + Base64.decode(ot)},
                         async: true, // 异步方式
-                        timeout: 10000, // 10秒
+                        timeout: 5000, // 5秒
                         dataType: 'json',
                         complete: function (xhr, ts) {
-                            console.log('reload data, item: ', item['sha'], 'length: ', $.reoadedItemCount);
                             if (ts === 'success') {
-                                var content = Base64.decode(xhr['responseJSON']['content']),
-                                    tmp = content.split('\n'),
-                                    len = tmp.length;
-                                for (var i = 2; i < len; i++) {
-                                    if (addMeta2Article($.trim(tmp[i]))) {
-                                        $.reoadedItemCount++;
+                                var content = Base64.decode(xhr['responseJSON']['content']), tmp = content.split('\n');
+                                for (var i = 2; i < tmp.length; i++) {
+                                    if (addMeta2Article(article.sha, $.trim(tmp[i]))) {
+                                        $.itemLoadedCount++;
+                                        console.log('reload data, sha:', article.sha, 'loaded:', $.itemLoadedCount);
                                         if (Cache.isSupported()) { // set cache, cache 3600 seconds.
-                                            Cache.set(item['sha'], content, {exp: 3600});
+                                            Cache.set(article.sha, xhr['responseText'], {exp: 3600});
                                         }
                                         break;
                                     }
@@ -268,7 +153,6 @@
                         }
                     });
                 }
-
             })(items[cursor], cursor);
         }
         callback(lists);
@@ -427,7 +311,9 @@
     var BricksAnimate = function () {
         $('article.animate-this').each(function (ctr) {
             var el = $(this);
-            setTimeout(function () {el.addClass('animated fadeInUp');}, ctr * 200);
+            setTimeout(function () {
+                el.addClass('animated fadeInUp');
+            }, ctr * 200);
         });
         $WIN.on('resize', function () {
             $('article.animate-this').removeClass('animate-this animated fadeInUp');
@@ -475,21 +361,31 @@
 
     /** Masonry resize cron task */
     var MasonryResize = function (callback) {
-        var masonryResizeMaxTimes = 10;
         $.masonryResizeTimes = 0;
         $.masonryResizeTask = setInterval(function () {
-            console.log('try masonry resize...', $.masonryResizeTimes);
             $.masonryResizeTimes++;
-            if ($.masonryResizeTimes > masonryResizeMaxTimes) {
-                console.log('try masonry resize more than maximum ', masonryResizeMaxTimes);
+            console.log('try masonry resize...', $.masonryResizeTimes);
+            if ($.masonryResizeTimes > 10) {
+                console.log('try masonry resize more than maximum');
                 clearInterval($.masonryResizeTask);
-                iziToast.error({timeout: 5000, icon: 'fa fa-frown-o', position: 'topRight', title: 'TIMEOUT', message: 'Try masonry resize more than maximum!'});
+                iziToast.error({
+                    timeout: 5000,
+                    icon: 'fa fa-frown-o',
+                    position: 'topRight',
+                    title: 'TIMEOUT',
+                    message: 'Try masonry resize more than maximum!'
+                });
             } else {
-                if ($.itemCount > 0 && $.reoadedItemCount === $.itemCount) {
+                if ($.itemCount > 0 && $.itemCount === $.itemLoadedCount) {
                     console.log('masonry resized');
                     clearInterval($.masonryResizeTask);
-                    articleContainer.fadeIn("slow",function () {
-                        articleContainer.masonry({itemSelector: '.entry', columnWidth: '.grid-sizer', percentPosition: true, resize: true});
+                    articleContainer.fadeIn("normal", function () {
+                        articleContainer.masonry({
+                            itemSelector: 'article.entry',
+                            columnWidth: 'div.grid-sizer',
+                            percentPosition: true,
+                            resize: true
+                        });
                         callback();
                     });
                 }
@@ -527,7 +423,13 @@
                 if (ts === 'timeout') {
                     msg = 'Network slow, try reload it!';
                 }
-                iziToast.error({timeout: 5000, icon: 'fa fa-frown-o', position: 'topRight', title: ts.toUpperCase(), message: msg});
+                iziToast.error({
+                    timeout: 5000,
+                    icon: 'fa fa-frown-o',
+                    position: 'topRight',
+                    title: ts.toUpperCase(),
+                    message: msg
+                });
             });
         });
         SuperFish();

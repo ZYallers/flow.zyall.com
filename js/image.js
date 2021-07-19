@@ -11,7 +11,6 @@
         'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1500993855538-c6a99f437aa7.jpeg',
         'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1502582877126-512f3c5b0a64.jpeg',
         'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1517926656690-9258331b10d8.jpeg',
-        //'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1523539090110-4deee7810c00.jpeg',
         'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1525466888468-cb6a1b6dc486.jpeg',
         'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1526402978125-f1d6df91cbac.jpeg',
         'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1533087053677-60bb97f0b3bb.jpeg',

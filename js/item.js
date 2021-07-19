@@ -1,7 +1,5 @@
 (function ($) {
-
     "use strict";
-
     var cfg = {
         defAnimation: "fadeInUp",    // default css animation
         scrollDuration: 800,           // smoothscroll duration
@@ -19,120 +17,14 @@
         return arr != null ? arr[2] : null;
     };
 
-    /** Base64 encode/decode see http://www.webtoolkit.info */
-    var Base64 = {
-        // private property
-        _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
-
-        // public method for encoding
-        encode: function (input) {
-            var output = "";
-            var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-            var i = 0;
-            input = Base64._utf8_encode(input);
-            while (i < input.length) {
-                chr1 = input.charCodeAt(i++);
-                chr2 = input.charCodeAt(i++);
-                chr3 = input.charCodeAt(i++);
-                enc1 = chr1 >> 2;
-                enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-                enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-                enc4 = chr3 & 63;
-                if (isNaN(chr2)) {
-                    enc3 = enc4 = 64;
-                } else if (isNaN(chr3)) {
-                    enc4 = 64;
-                }
-
-                output = output +
-                    this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) +
-                    this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
-            }
-            return output;
-        },
-
-        // public method for decoding
-        decode: function (input) {
-            var output = "";
-            var chr1, chr2, chr3;
-            var enc1, enc2, enc3, enc4;
-            var i = 0;
-
-            input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-            while (i < input.length) {
-                enc1 = this._keyStr.indexOf(input.charAt(i++));
-                enc2 = this._keyStr.indexOf(input.charAt(i++));
-                enc3 = this._keyStr.indexOf(input.charAt(i++));
-                enc4 = this._keyStr.indexOf(input.charAt(i++));
-                chr1 = (enc1 << 2) | (enc2 >> 4);
-                chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-                chr3 = ((enc3 & 3) << 6) | enc4;
-                output = output + String.fromCharCode(chr1);
-                if (enc3 != 64) {
-                    output = output + String.fromCharCode(chr2);
-                }
-
-                if (enc4 != 64) {
-                    output = output + String.fromCharCode(chr3);
-                }
-            }
-            output = Base64._utf8_decode(output);
-            return output;
-        },
-
-        // private method for UTF-8 encoding
-        _utf8_encode: function (string) {
-            string = string.replace(/\r\n/g, "\n");
-            var utftext = "";
-            for (var n = 0; n < string.length; n++) {
-                var c = string.charCodeAt(n);
-                if (c < 128) {
-                    utftext += String.fromCharCode(c);
-                } else if ((c > 127) && (c < 2048)) {
-                    utftext += String.fromCharCode((c >> 6) | 192);
-                    utftext += String.fromCharCode((c & 63) | 128);
-                } else {
-                    utftext += String.fromCharCode((c >> 12) | 224);
-                    utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-                    utftext += String.fromCharCode((c & 63) | 128);
-                }
-            }
-            return utftext;
-        },
-
-        // private method for UTF-8 decoding
-        _utf8_decode: function (utftext) {
-            var string = "", i = 0, c = 0, c1 = 0, c2 = 0, c3 = 0;
-            while (i < utftext.length) {
-                c = utftext.charCodeAt(i);
-                if (c < 128) {
-                    string += String.fromCharCode(c);
-                    i++;
-                } else if ((c > 191) && (c < 224)) {
-                    c2 = utftext.charCodeAt(i + 1);
-                    string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
-                    i += 2;
-                } else {
-                    c2 = utftext.charCodeAt(i + 1);
-                    c3 = utftext.charCodeAt(i + 2);
-                    string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
-                    i += 3;
-                }
-            }
-            return string;
-        }
-    };
-
     /** Cache */
     var Cache = new WebStorageCache({storage: 'localStorage'});
 
     /** RandImageCacheSet */
     var RandImageCacheSet = [];
 
-
-    /* Preloader
-     * -------------------------------------------------- */
-    var ssPreloader = function () {
+    /* Preloader */
+    var Preloader = function () {
         $WIN.on('load', function () {
             // will first fade out the loading animation
             $("#loader").fadeOut("slow", function () {
@@ -142,10 +34,8 @@
         });
     };
 
-
-    /* superfish
-     * -------------------------------------------------- */
-    var ssSuperFish = function () {
+    /* superfish */
+    var SuperFish = function () {
         $('ul.sf-menu').superfish({
             animation: {height: 'show'}, // slide-down effect without fade-in
             animationOut: {height: 'hide'}, // slide-up effect without fade-in
@@ -155,10 +45,8 @@
         });
     };
 
-
-    /* Mobile Menu
-     * -------------------------------------------------- */
-    var ssMobileNav = function () {
+    /* Mobile Menu */
+    var MobileNav = function () {
         var toggleButton = $('.menu-toggle'),
             nav = $('.main-navigation');
 
@@ -185,10 +73,8 @@
 
     };
 
-
-    /* search
-     ------------------------------------------------------ */
-    var ssSearch = function () {
+    /* search */
+    var Search = function () {
         var searchWrap = $('.search-wrap');
         var searchField = searchWrap.find('.search-field');
         var closeSearch = $('#close-search');
@@ -231,49 +117,8 @@
         searchField.attr({placeholder: 'Type Your Keywords', autocomplete: 'off'});
     };
 
-
-    /*	Masonry
-    ------------------------------------------------------ */
-    var ssMasonryFolio = function () {
-        var containerBricks = $('.bricks-wrapper');
-        containerBricks.imagesLoaded(function () {
-            containerBricks.masonry({
-                itemSelector: '.entry',
-                columnWidth: '.grid-sizer',
-                percentPosition: true,
-                resize: true
-            });
-
-        });
-    };
-
-
-    /* animate bricks
-      * ------------------------------------------------------ */
-    var ssBricksAnimate = function () {
-        var animateEl = $('.animate-this');
-        $WIN.on('load', function () {
-            setTimeout(function () {
-                animateEl.each(function (ctr) {
-                    var el = $(this);
-                    setTimeout(function () {
-                        el.addClass('animated fadeInUp');
-                    }, ctr * 200);
-
-                });
-            }, 200);
-        });
-
-        $WIN.on('resize', function () {
-            // remove animation classes
-            animateEl.removeClass('animate-this animated fadeInUp');
-        });
-    };
-
-
-    /* Smooth Scrolling
-      * ------------------------------------------------------ */
-    var ssSmoothScroll = function () {
+    /** Smooth Scrolling */
+    var SmoothScroll = function () {
         $('.smoothscroll').on('click', function (e) {
             var target = this.hash,
                 $target = $(target);
@@ -293,17 +138,13 @@
         });
     };
 
-
-    /* Placeholder Plugin Settings
-      * ------------------------------------------------------ */
-    var ssPlaceholder = function () {
+    /* Placeholder Plugin Settings */
+    var Placeholder = function () {
         $('input, textarea, select').placeholder();
     };
 
-
-    /* Back to Top
-      * ------------------------------------------------------ */
-    var ssBackToTop = function () {
+    /** Back to Top */
+    var BackToTop = function () {
         var pxShow = 500,              // height on which the button will show
             fadeInTime = 400,          // how slow/fast you want the button to show
             fadeOutTime = 400,         // how slow/fast you want the button to hide
@@ -311,15 +152,18 @@
             goTopButton = $("#go-top");
 
         // Show or hide the sticky footer button
-        $(window).on('scroll', function () {
-            if ($(window).scrollTop() >= pxShow) {
+        $WIN.on('scroll', function () {
+            if ($WIN.scrollTop() >= pxShow) {
                 goTopButton.fadeIn(fadeInTime);
             } else {
                 goTopButton.fadeOut(fadeOutTime);
             }
+            
+            if (SoHuCsIsNeed && !SoHuCsHaveLoaded) {
+                SoHuCsScroll();
+            }
         });
     };
-
 
     /** GetOneRandImage */
     var GetOneRandImage = function (source) {
@@ -334,11 +178,8 @@
         return res;
     };
 
-
-    /**
-     * SetBodyBackgroundImage
-     */
-    var ssBodyBackgroundImage = function () {
+    /** BodyBackgroundImage */
+    var BodyBackgroundImage = function () {
         $('body').css({
             'background-image': 'url(' + GetOneRandImage(window.BACKGROUND_IMAGE) + ')',
             'transition': 'transform .3s ease-out',
@@ -351,60 +192,66 @@
         });
     };
 
-
     /** ssGetContent */
-    var ssGetContent = function (callback) {
-        var iPath = GetUrlParam("i");
-        if (iPath === null || iPath === "") {
+    var GetContent = function (callback) {
+        var sha = GetUrlParam('s');
+        if (sha === null || sha === '') {
             iziToast.error({
                 timeout: 5000,
                 icon: 'fa fa-frown-o',
                 position: 'topRight',
                 title: ts.toUpperCase(),
-                message: "参数错误！"
+                message: '参数错误！'
             });
             return;
         }
-
-        var path = Base64.decode(iPath);
-
         var isNeedReload = true;
-
         var parseItemContent = function (resp) {
-            var name = resp["name"],
-                size = resp["size"],
-                content = resp["content"];
+            var size = resp["size"];
+            var content = resp["content"];
+            var contentHtml = Base64.decode(content);
 
-            var $headTitle = $("head").children('title').eq(0),
-                $description = $("meta[name='description']"),
-                $itemPosters = $("#item-posters"),
-                $itemTitle = $("#item-title"),
-                $itemSize = $("#item-size"),
-                $itemBody = $("#item-body"),
-                $itemTag = $("#item-tag");
+            /** 第一行是注释；第二行是标题；第三行是引用 */
+            var arr = contentHtml.split('\n');
+            var date = '', meta = '', image = '', title= '';
+            if (arr[0].match(/^\[\/\/\]:# \((.*)?\)/g) != null && RegExp.$1 !== ''){
+                var tmp = RegExp.$1.split('|');
+                if (tmp.length ===3){
+                    date = tmp[0];
+                    meta = tmp[1];
+                    image = tmp[2];
+                }
+                title = arr[1].replace('#','').trim();
+            }else{
+                title = arr[0].replace('#','').trim();
+            }
 
-            $itemPosters.attr("src", GetOneRandImage(window.SECTION_IMAGE));
+            $('head').children('title').eq(0).text(title + " - Flow Your Life");
+            $("meta[name='description']").attr("content", title + ",Flow Your Life");
+            $("#item-title").text(title);
 
-            var itemTitle = name.substring(0, name.indexOf(".md"));
-            $headTitle.text(itemTitle + " - Flow Your Life"); // 标题
-            $description.attr("content", itemTitle + ",Flow Your Life");
-            $itemTitle.text(itemTitle);
+            image = image || GetOneRandImage(window.SECTION_IMAGE)
+            $('#item-posters').attr('src', image);
 
-            var kb = (size / 1024).toFixed(2);
-            $itemSize.text(kb + " KB");
+            $("#item-size").text((size / 1024).toFixed(2) + " KB");
 
-            var tag = path.split("/");
-            $itemTag.attr("href", "/?m=" + tag[1]);
-            $itemTag.text(tag[1].toUpperCase());
+            if (date !== ''){
+                $("#item-date").removeClass('hide').text(date);
+            }
+
+            if (meta !== ''){
+                $('#item-meta').attr("href", "/?m=" + meta.toLowerCase()).text(meta.toUpperCase());
+            }
 
             showdown.setFlavor('github');
             var conv = new showdown.Converter();
-            var htmlContent = conv.makeHtml(Base64.decode(content)); // 将MarkDown转为html格式的内容
-            $itemBody.html(htmlContent);
+            var $itemBody = $('#item-body');
+            $itemBody.html(conv.makeHtml(contentHtml));
 
             // 重复标题处理
-            if ($itemBody.find("h1").length > 0) {
-                $itemBody.find("h1").eq(0).hide();
+            var $bodyH1 = $itemBody.find('h1');
+            if ($bodyH1.length > 0) {
+                $bodyH1.eq(0).hide();
             }
 
             // 代码高亮
@@ -415,36 +262,36 @@
         };
 
         if (Cache.isSupported()) {
-            var str = Cache.get(iPath);
+            var str = Cache.get(sha);
             if (str) {
                 isNeedReload = false;
-                console.log('read from cache: ', path);
+                console.log('read from cache, sha:', sha);
                 parseItemContent(JSON.parse(str));
-                typeof (callback) == 'function' && callback();
+                callback();
             }
         }
 
         if (isNeedReload) {
             $.ajax({
-                url: "https://api.github.com/repositories/97666535/contents/" + path,
+                url: 'https://api.github.com/repos/ZYallers/ZYaller/git/blobs/' + sha,
                 headers: {Authorization: "token " + Base64.decode(ot)},
                 async: true, // 异步方式
-                timeout: 10000, // 10秒
+                timeout: 5000, // 5秒
                 dataType: 'json',
                 complete: function (xhr, ts) {
-                    console.log('reload data: ', path);
+                    console.log('reload data, sha:', sha);
                     if (ts !== "success") {
                         iziToast.error({
                             timeout: 5000,
                             icon: 'fa fa-frown-o',
                             position: 'topRight',
                             title: ts.toUpperCase(),
-                            message: "网络异常，请刷新页面重试！"
+                            message: '网络异常，请刷新页面重试！'
                         });
                         return;
                     }
                     if (Cache.isSupported()) {
-                        Cache.set(iPath, xhr["responseText"], {exp: 3600}); // 缓存1小时
+                        Cache.set(sha, xhr["responseText"], {exp: 3600}); // 缓存1小时
                     }
                     parseItemContent(xhr["responseJSON"]);
                     typeof (callback) == 'function' && callback();
@@ -453,8 +300,8 @@
         }
     };
 
-    /** loadJs */
-    var loadJs = function (d, a) {
+    /** LoadJS */
+    var LoadJS = function (d, a) {
         var c = document.getElementsByTagName("head")[0] || document.head || document.documentElement;
         var b = document.createElement("script");
         b.setAttribute("type", "text/javascript");
@@ -476,80 +323,79 @@
         c.appendChild(b);
     };
 
-    var ssSohuChangYan = function () {
-        var iPath = GetUrlParam("i");
-        if (iPath === null || iPath === "") {
+    /** SohuChangYan */
+    var $sohucs = $("#SOHUCS"),
+        SoHuCsIsNeed = false,
+        SoHuCsHaveLoaded = false,
+        SoHuCsScroll = function () {
+        var mobileWidth = 415;
+        var clientWidth = window.innerWidth || document.documentElement.clientWidth;
+        var minHeight = clientWidth < 500 ? 700 : 400;
+
+        if ($(document).height() - $WIN.height() - $WIN.scrollTop() > minHeight) {
             return;
         }
 
-        $("#SOHUCS").attr("sid", iPath);
+        SoHuCsHaveLoaded = true;
+        $sohucs.parent().slideDown();
 
-        $(window).on('scroll', function () {
-            var mobileWidth = 415;
-            var clientWidth = window.innerWidth || document.documentElement.clientWidth;
-            var minHeight = clientWidth < 500 ? 700 : 400;
+        var appid = 'cyvtmo2ww';
+        var conf = 'prod_2245ad762922c6b6c41386af7264cdad';
 
-            if ($(document).height() - $(window).height() - $(window).scrollTop() > minHeight) {
-                return;
-            }
+        if (clientWidth < mobileWidth) {
+            var head = document.getElementsByTagName('head')[0] || document.head || document.documentElement;
+            var script = document.createElement('script');
+            script.id = 'changyan_mobile_js';
+            script.src = 'https://cy-cdn.kuaizhan.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf;
+            head.appendChild(script);
+        } else {
+            LoadJS("https://cy-cdn.kuaizhan.com/upload/changyan.js", function () {
+                window.changyan.api.config({appid: appid, conf: conf});
+            });
+        }
 
-            $(window).off('scroll');
-            $("#SOHUCS").parent().slideDown();
-
-            var appid = 'cyvtmo2ww';
-            var conf = 'prod_2245ad762922c6b6c41386af7264cdad';
-
-            if (clientWidth < mobileWidth) {
-                var head = document.getElementsByTagName('head')[0] || document.head || document.documentElement;
-                var script = document.createElement('script');
-                script.id = 'changyan_mobile_js';
-                script.src = 'https://cy-cdn.kuaizhan.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf;
-                head.appendChild(script);
-            } else {
-                loadJs("https://cy-cdn.kuaizhan.com/upload/changyan.js", function () {
-                    window.changyan.api.config({appid: appid, conf: conf});
+        setTimeout(function () {
+            $("div.bricks-loading").slideUp("normal", function () {
+                $sohucs.slideDown("slow", function () {
+                    if (clientWidth < mobileWidth) {
+                        $("div.list-footer-wrapper-wap").remove();
+                        setTimeout(function () {
+                            $("span.prop-ico").parent().remove();
+                        }, 1000);
+                    } else {
+                        $("div.module-cmt-footer").remove();
+                        setTimeout(function () {
+                            $("span.click-prop-gw").each(function () {
+                                $(this).prev().remove();
+                                $(this).remove();
+                            });
+                        }, 1000);
+                    }
                 });
-            }
+            });
+        }, 3000);
 
-            setTimeout(function () {
-                $("div.bricks-loading").slideUp("normal", function () {
-                    $("#SOHUCS").slideDown("slow", function () {
-                        if(clientWidth < mobileWidth){
-                            $("div.list-footer-wrapper-wap").remove();
-                            setTimeout(function () {
-                                $("span.prop-ico").parent().remove();
-                            }, 1000);
-                        }else{
-                            $("div.module-cmt-footer").remove();
-                            setTimeout(function () {
-                                $("span.click-prop-gw").each(function () {
-                                    $(this).prev().remove();
-                                    $(this).remove();
-                                });
-                            }, 1000);
-                        }
-                    });
-                });
-            }, 3000);
-
-        });
+    },
+        SohuChangYan = function () {
+        SoHuCsIsNeed = true;
+        var sid = GetUrlParam('s');
+        if (sid === null || sid === "") {
+            return;
+        }
+        $sohucs.attr("sid", sid);
     };
 
-
-    /* Initialize
-      * ------------------------------------------------------ */
+    /** Initialize */
     (function ssInit() {
-        ssBodyBackgroundImage();
-        ssGetContent(ssSohuChangYan);
-        ssPreloader();
-        ssSuperFish();
-        ssMobileNav();
-        ssSearch();
-        ssMasonryFolio();
-        ssBricksAnimate();
-        ssSmoothScroll();
-        ssPlaceholder();
-        ssBackToTop();
+        BodyBackgroundImage();
+        GetContent(SohuChangYan);
+        Preloader();
+        SuperFish();
+        MobileNav();
+        Search();
+        SmoothScroll();
+        Placeholder();
+        BackToTop();
     })();
 
 })(jQuery);
