@@ -158,7 +158,7 @@
                         isNeedReload = false;
                         AppendArticle(item, text);
                         $.itemLoadedCount++;
-                        console.log('read from cache, sha:', article.sha, 'loaded:', $.itemLoadedCount);
+                        console.log('read from cache, sha:', item['sha'], 'loaded:', $.itemLoadedCount);
                     }
                 }
                 if (isNeedReload) {
@@ -172,7 +172,7 @@
                             if (ts === 'success') {
                                 AppendArticle(item, xhr['responseText']);
                                 $.itemLoadedCount++;
-                                console.log('reload data, sha:', article.sha, 'loaded:', $.itemLoadedCount);
+                                console.log('reload data, sha:', item['sha'], 'loaded:', $.itemLoadedCount);
                                 if (Cache.isSupported()) {
                                     Cache.set(item['sha'], xhr['responseText'], {exp: 3600});
                                 }
