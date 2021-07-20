@@ -130,12 +130,16 @@
 <script type="text/html" id="lists-item-template">
     <article id="{{sha}}" class="entry brick animate-this">
         <div class="entry-thumb">
-            <a target="_blank" href="{{img}}" class="thumb-link" title="{{title}}" data-lity data-lity-desc="{{title}}"><img src="{{img}}" alt="IMGAE"></a>
+            <a target="_blank" href="{{img}}" class="thumb-link" title="{{title}}" data-lity data-lity-desc="{{title}}"><img src="{{img}}" alt="IMAGE"></a>
         </div>
         <div class="entry-text">
             <div class="entry-header">
                 <div class="entry-meta"><span class="cat-links"><a href="{{metalink}}">{{meta}}</a></span></div>
                 <h1 class="entry-title"><a target="_blank" href="{{link}}">{{title}}</a></h1>
+                <div class="entry-subtitle">
+                    <span>{{size}}</span>
+                    <span>{{date}}</span>
+                </div>
             </div>
             <div class="entry-excerpt">{{intro}}</div>
         </div>

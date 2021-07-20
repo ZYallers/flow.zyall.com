@@ -13,8 +13,7 @@
             defAnimation: "fadeInUp",      // default css animation
             scrollDuration: 800,           // smoothscroll duration
             statsDuration: 4000            // stats animation duration
-        },
-        introFilter = ['#', '>', '`', '<', '/', '*', '-', '!', '['];
+        };
 
     /** get url params */
     var GetUrlParam = function (name) {
@@ -85,69 +84,91 @@
         return res;
     };
 
-    /** get articles */
+    /** introFilter */
+    var IntroFilter = ['#', '>', '`', '<', '/', '*', '-', '!', '['];
+
+    /** getEntryExcerptText */
+    var GetEntryExcerptText = function (content) {
+        var arr = content.split('\n'), line = '';
+        for (var i = 2; i < arr.length; i++) {
+            line = $.trim(arr[i]);
+            if (line !== '' && $.inArray(line.slice(0, 1), IntroFilter) === -1) {
+                return line.substr(0, 50) + '...';
+            }
+        }
+        return '...';
+    }
+
+    /** GetArticleAnnotation */
+    var GetArticleAnnotation = function (content) {
+        var arr = content.split('\n');
+        if (arr[0].match(/^\[\/\/\]:# \((.*)?\)/g) != null && RegExp.$1 !== '') {
+            return RegExp.$1.split('|');
+        }
+        return [];
+    };
+
+    var GetArticleData = function (item, text) {
+        var meta = item['path'].split('/')[1] || 'php';
+        var article = {
+            sha: item['sha'],
+            size: '0.00KB',
+            date: '',
+            link: '/item.html?s=' + item['sha'],
+            title: item['name'].slice(0, -3),
+            meta: meta.toUpperCase(),
+            metalink: '/?m=' + meta,
+            img: ''
+        };
+        var textJson = JSON.parse(text), content = Base64.decode(textJson['content']);
+        article.size = (textJson['size'] / 1024).toFixed(2) + 'KB';
+        var arr = GetArticleAnnotation(content);
+        if (arr.length > 0) {
+            article.date = arr[0];
+            if (arr[2]) {
+                article.img = arr[2];
+            }
+        }
+        if (article.img === '') {
+            article.img = GetOneRandImage(window.SECTION_IMAGE)
+        }
+        article.intro = GetEntryExcerptText(content);
+        return article;
+    };
+
+    /** GetArticles */
     var GetArticles = function (lists, callback) {
         var items = lists.items, len = items.length;
         $.itemCount = len;
         $.itemLoadedCount = 0;
-        // update item image and intro.
-        var addMeta2Article = function (sha, line) {
-            if (line !== '' && $.inArray(line.slice(0, 1), introFilter) === -1) {
-                $("#" + sha).find('div.entry-excerpt').text(line.substr(0, 50) + '...');
-                return true;
-            }
-            return false;
-        }
         for (var cursor = 0; cursor < len; cursor++) {
             (function (item, cursor) {
-                var article = {
-                    sha: item['sha'],
-                    intro: '',
-                    link: '/item.html?s=' + item['sha'],
-                    title: item['name'].slice(0, -3),
-                    meta: item['path'].split('/')[1],
-                    img: GetOneRandImage(window.SECTION_IMAGE)
-                };
-                article.meta = article.meta || 'php';
-                article.metalink = '/?m=' + article.meta;
-                article.meta = article.meta.toUpperCase();
-                articleContainer.append(MicroTemplate(listsItemTemplate, article));
                 var isNeedReload = true;
                 if (Cache.isSupported()) {
-                    var text = Cache.get(article.sha);
+                    var text = Cache.get(item['sha']);
                     if (text) {
                         isNeedReload = false;
-                        var textJson = JSON.parse(text);
-                        var contentHtml = Base64.decode(textJson['content']);
-                        var tmp = contentHtml.split('\n');
-                        for (var i = 2; i < tmp.length; i++) {
-                            if (addMeta2Article(article.sha, $.trim(tmp[i]))) {
-                                $.itemLoadedCount++;
-                                console.log('read from cache, sha:', article.sha, 'loaded:', $.itemLoadedCount);
-                                break;
-                            }
-                        }
+                        $.itemLoadedCount++;
+                        var article = GetArticleData(item, text);
+                        articleContainer.append(MicroTemplate(listsItemTemplate, article));
+                        console.log('read from cache, sha:', article.sha, 'loaded:', $.itemLoadedCount);
                     }
                 }
                 if (isNeedReload) {
                     $.ajax({
-                        url: 'https://api.github.com/repos/ZYallers/ZYaller/git/blobs/' + article.sha,
+                        url: 'https://api.github.com/repos/ZYallers/ZYaller/git/blobs/' + item['sha'],
                         headers: {Authorization: "token " + Base64.decode(ot)},
                         async: true, // 异步方式
                         timeout: 5000, // 5秒
                         dataType: 'json',
                         complete: function (xhr, ts) {
-                            if (ts === 'success') {
-                                var content = Base64.decode(xhr['responseJSON']['content']), tmp = content.split('\n');
-                                for (var i = 2; i < tmp.length; i++) {
-                                    if (addMeta2Article(article.sha, $.trim(tmp[i]))) {
-                                        $.itemLoadedCount++;
-                                        console.log('reload data, sha:', article.sha, 'loaded:', $.itemLoadedCount);
-                                        if (Cache.isSupported()) { // set cache, cache 3600 seconds.
-                                            Cache.set(article.sha, xhr['responseText'], {exp: 3600});
-                                        }
-                                        break;
-                                    }
+                            if (ts === 'success' && xhr['responseText'] !== '') {
+                                $.itemLoadedCount++;
+                                var article = GetArticleData(item, xhr['responseText']);
+                                articleContainer.append(MicroTemplate(listsItemTemplate, article));
+                                console.log('reload data, sha:', article.sha, 'loaded:', $.itemLoadedCount);
+                                if (Cache.isSupported()) {
+                                    Cache.set(item['sha'], xhr['responseText'], {exp: 3600});
                                 }
                             }
                         }
