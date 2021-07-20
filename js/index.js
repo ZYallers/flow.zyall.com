@@ -108,6 +108,7 @@
         return [];
     };
 
+    /** GetArticleData */
     var GetArticleData = function (item, text) {
         var meta = item['path'].split('/')[1] || 'php';
         var article = {
@@ -136,6 +137,13 @@
         return article;
     };
 
+    /** AppendArticle */
+    var AppendArticle = function (item, text) {
+        var article = GetArticleData(item, text);
+        var html = MicroTemplate(listsItemTemplate, article);
+        articleContainer.append(html);
+    }
+
     /** GetArticles */
     var GetArticles = function (lists, callback) {
         var items = lists.items, len = items.length;
@@ -148,9 +156,8 @@
                     var text = Cache.get(item['sha']);
                     if (text) {
                         isNeedReload = false;
+                        AppendArticle(item, text);
                         $.itemLoadedCount++;
-                        var article = GetArticleData(item, text);
-                        articleContainer.append(MicroTemplate(listsItemTemplate, article));
                         console.log('read from cache, sha:', article.sha, 'loaded:', $.itemLoadedCount);
                     }
                 }
@@ -162,10 +169,9 @@
                         timeout: 5000, // 5秒
                         dataType: 'json',
                         complete: function (xhr, ts) {
-                            if (ts === 'success' && xhr['responseText'] !== '') {
+                            if (ts === 'success') {
+                                AppendArticle(item, xhr['responseText']);
                                 $.itemLoadedCount++;
-                                var article = GetArticleData(item, xhr['responseText']);
-                                articleContainer.append(MicroTemplate(listsItemTemplate, article));
                                 console.log('reload data, sha:', article.sha, 'loaded:', $.itemLoadedCount);
                                 if (Cache.isSupported()) {
                                     Cache.set(item['sha'], xhr['responseText'], {exp: 3600});
@@ -334,7 +340,7 @@
             var el = $(this);
             setTimeout(function () {
                 el.addClass('animated fadeInUp');
-            }, ctr * 200);
+            }, ctr * 300);
         });
         $WIN.on('resize', function () {
             $('article.animate-this').removeClass('animate-this animated fadeInUp');
