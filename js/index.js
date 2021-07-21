@@ -5,12 +5,12 @@
         articleContainer = $('#article-container'),
         listsItemTemplate = $('#lists-item-template').html(),
         Cache = new WebStorageCache({storage: 'localStorage'}),
-        perpage = 12,
+        pageSize = 12,
         ot = 'Z2hwX2dHWDRPcXBlbFNCRXM1bDNxdmJvdFN6WEJXOXVhMjMzNXJlMQ==',
         searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
         repoExtn = 'repo:ZYallers/ZYaller+extension:md',
         cfg = {
-            defAnimation: "fadeInUp",      // default css animation
+            defAnimation: 'fadeInUp',      // default css animation
             scrollDuration: 800,           // smoothscroll duration
             statsDuration: 4000            // stats animation duration
         };
@@ -23,7 +23,7 @@
 
     /** set pagination */
     var GetPagination = function (total) {
-        if (!(total > 0) || total <= perpage) {
+        if (!(total > 0) || total <= pageSize) {
             return;
         }
 
@@ -32,7 +32,7 @@
             query = GetUrlParam('q'),
             meta = GetUrlParam('m'),
             page = GetUrlParam('page') || 1,
-            totalPage = Math.ceil(total / perpage),
+            totalPage = Math.ceil(total / pageSize),
             href = (query ? 'q=' + query : '') + (meta ? '&m=' + meta : '');
 
         href = href ? '?' + href + '&page=' : '?page=';
@@ -146,43 +146,65 @@
 
     /** GetArticles */
     var GetArticles = function (lists, callback) {
-        var items = lists.items, len = items.length;
-        $.itemCount = len;
+        var items = lists.items;
         $.itemLoadedCount = 0;
-        for (var cursor = 0; cursor < len; cursor++) {
+        for (var cursor = 0; cursor < items.length; cursor++) {
             (function (item, cursor) {
-                var isNeedReload = true;
-                if (Cache.isSupported()) {
-                    var text = Cache.get(item['sha']);
-                    if (text) {
-                        isNeedReload = false;
-                        AppendArticle(item, text);
-                        $.itemLoadedCount++;
-                        console.log('read from cache, sha:', item['sha'], 'loaded:', $.itemLoadedCount);
+                setTimeout(function () {
+                    var isNeedReload = true;
+                    if (Cache.isSupported()) {
+                        var text = Cache.get(item['sha']);
+                        if (text) {
+                            isNeedReload = false;
+                            AppendArticle(item, text);
+                            $.itemLoadedCount++;
+                            console.log('read from cache, sha:', item['sha'], 'loaded:', $.itemLoadedCount);
+                        }
                     }
-                }
-                if (isNeedReload) {
-                    $.ajax({
-                        url: 'https://api.github.com/repos/ZYallers/ZYaller/git/blobs/' + item['sha'],
-                        headers: {Authorization: "token " + Base64.decode(ot)},
-                        async: true, // 异步方式
-                        timeout: 5000, // 5秒
-                        dataType: 'json',
-                        complete: function (xhr, ts) {
-                            if (ts === 'success') {
-                                AppendArticle(item, xhr['responseText']);
-                                $.itemLoadedCount++;
-                                console.log('reload data, sha:', item['sha'], 'loaded:', $.itemLoadedCount);
-                                if (Cache.isSupported()) {
-                                    Cache.set(item['sha'], xhr['responseText'], {exp: 3600});
+                    if (isNeedReload) {
+                        $.ajax({
+                            url: 'https://api.github.com/repos/ZYallers/ZYaller/git/blobs/' + item['sha'],
+                            headers: {Authorization: "token " + Base64.decode(ot)},
+                            async: true, // 异步方式
+                            timeout: 5000, // 5秒
+                            dataType: 'json',
+                            complete: function (xhr, ts) {
+                                if (ts === 'success') {
+                                    AppendArticle(item, xhr['responseText']);
+                                    $.itemLoadedCount++;
+                                    console.log('reload data, sha:', item['sha'], 'loaded:', $.itemLoadedCount);
+                                    if (Cache.isSupported()) {
+                                        Cache.set(item['sha'], xhr['responseText'], {exp: 3600});
+                                    }
                                 }
                             }
-                        }
-                    });
-                }
+                        });
+                    }
+                },cursor * 300);
             })(items[cursor], cursor);
         }
-        callback(lists);
+
+        $.itemCallbackRetried = 0;
+        $.itemCallbackInterval = setInterval(function () {
+            $.itemCallbackRetried++;
+            console.log('try article callback...', $.itemCallbackRetried);
+            if ($.itemCallbackRetried > 20) {
+                clearInterval($.itemCallbackInterval);
+                console.log('try article callback more than maximum');
+                iziToast.error({
+                    timeout: 5000,
+                    icon: 'fa fa-frown-o',
+                    position: 'topRight',
+                    title: 'TIMEOUT',
+                    message: 'Try article callback more than maximum'
+                });
+            } else {
+                if (items.length === $.itemLoadedCount) {
+                    clearInterval($.itemCallbackInterval);
+                    callback(lists);
+                }
+            }
+        }, 500);
     };
 
     /** get list data */
@@ -191,7 +213,7 @@
             meta = GetUrlParam('m'),
             page = GetUrlParam('page') || 1,
             query = (keyword ? keyword + '+' : '') + 'path:/tag' + (meta ? '/' + meta : ''),
-            api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + perpage;
+            api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + pageSize;
 
         var isNeedReload = true;
         if (Cache.isSupported()) {
@@ -334,19 +356,6 @@
         searchField.attr({placeholder: 'Type Your Keywords', autocomplete: 'off'});
     };
 
-    /** animate bricks */
-    var BricksAnimate = function () {
-        $('article.animate-this').each(function (ctr) {
-            var el = $(this);
-            setTimeout(function () {
-                el.addClass('animated fadeInUp');
-            }, ctr * 300);
-        });
-        $WIN.on('resize', function () {
-            $('article.animate-this').removeClass('animate-this animated fadeInUp');
-        });
-    };
-
     /** Smooth Scrolling */
     var SmoothScroll = function () {
         $('.smoothscroll').on('click', function (e) {
@@ -386,40 +395,6 @@
         });
     };
 
-    /** Masonry resize cron task */
-    var MasonryResize = function (callback) {
-        $.masonryResizeTimes = 0;
-        $.masonryResizeTask = setInterval(function () {
-            $.masonryResizeTimes++;
-            console.log('try masonry resize...', $.masonryResizeTimes);
-            if ($.masonryResizeTimes > 10) {
-                console.log('try masonry resize more than maximum');
-                clearInterval($.masonryResizeTask);
-                iziToast.error({
-                    timeout: 5000,
-                    icon: 'fa fa-frown-o',
-                    position: 'topRight',
-                    title: 'TIMEOUT',
-                    message: 'Try masonry resize more than maximum!'
-                });
-            } else {
-                if ($.itemCount > 0 && $.itemCount === $.itemLoadedCount) {
-                    console.log('masonry resized');
-                    clearInterval($.masonryResizeTask);
-                    articleContainer.fadeIn("normal", function () {
-                        articleContainer.masonry({
-                            itemSelector: 'article.entry',
-                            columnWidth: 'div.grid-sizer',
-                            percentPosition: true,
-                            resize: true
-                        });
-                        callback();
-                    });
-                }
-            }
-        }, 1000);
-    };
-
     /** Initialize */
     (function Init() {
         SetBodyBackgroundImage();
@@ -429,12 +404,20 @@
                     if (lists.items.length > 0) {
                         GetArticles(lists, function (lists) {
                             articleContainer.imagesLoaded(function () {
-                                console.log('images loaded');
-                                BricksAnimate();
-                                MasonryResize(function () {
-                                    GetPagination(lists['total_count']);
-                                    footer.fadeIn("slow");
+                                console.log('article image loaded');
+                                articleContainer.masonry({
+                                    itemSelector: 'article.entry',
+                                    columnWidth: 'div.grid-sizer',
+                                    percentPosition: true,
+                                    resize: true
                                 });
+
+                                $WIN.on('resize', function () {
+                                    $('article.animate-this').removeClass('animate-this animated fadeInUp');
+                                });
+
+                                GetPagination(lists['total_count']);
+                                footer.fadeIn("slow");
                             });
                         });
                     } else {
