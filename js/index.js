@@ -5,8 +5,8 @@
         articleContainer = $('#article-container'),
         listsItemTemplate = $('#lists-item-template').html(),
         Cache = new WebStorageCache({storage: 'localStorage'}),
-        pageSize = 12,
-        ot = 'Z2hwX2dHWDRPcXBlbFNCRXM1bDNxdmJvdFN6WEJXOXVhMjMzNXJlMQ==',
+        perpage = 12,
+        ot = 'Z2hwX3huNXRISUVtVjI4c1FaaE1JQ1EzdzJYY1FyU0FxdDFvSkMydg==',
         searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
         repoExtn = 'repo:ZYallers/ZYaller+extension:md',
         cfg = {
