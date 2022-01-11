@@ -214,7 +214,7 @@
             /** 第一行是注释；第二行是标题；第三行是引用 */
             var arr = contentHtml.split('\n');
             var date = '', meta = '', image = '', title= '';
-            if (arr[0].match(/^\[\/\/\]:# \((.*)?\)/g) != null && RegExp.$1 !== ''){
+            if (arr[0].match(/^\[\/\/\]:# [\("](.*)?[\)"]/g) != null && RegExp.$1 !== ''){
                 var tmp = RegExp.$1.split('|');
                 if (tmp.length ===3){
                     date = tmp[0];
