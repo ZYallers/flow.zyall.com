@@ -211,19 +211,26 @@
             var content = resp["content"];
             var contentHtml = Base64.decode(content);
 
-            /** 第一行是注释；第二行是标题；第三行是引用 */
             var arr = contentHtml.split('\n');
             var date = '', meta = '', image = '', title= '';
-            if (arr[0].match(/^\[\/\/\]:# [\("](.*)?[\)"]/g) != null && RegExp.$1 !== ''){
-                var tmp = RegExp.$1.split('|');
-                if (tmp.length ===3){
-                    date = tmp[0];
-                    meta = tmp[1];
-                    image = tmp[2];
+            for (var i=0; i < arr.length; i++) {
+                var lineValue = arr[i].trim();
+                if (lineValue === '') {
+                    continue;
                 }
-                title = arr[1].replace('#','').trim();
-            }else{
-                title = arr[0].replace('#','').trim();
+                if (lineValue.match(/^\[\/\/]:# [("](.*)?[)"]/g) != null && RegExp.$1 !== ''){
+                    var tmp = RegExp.$1.split('|');
+                    if (tmp.length ===3){
+                        date = tmp[0];
+                        meta = tmp[1];
+                        image = tmp[2];
+                    }
+                    continue;
+                }
+                if (lineValue.match(/^# (.*)?/g) != null && RegExp.$1 !== ''){
+                    title = RegExp.$1.trim();
+                    break;
+                }
             }
 
             $('head').children('title').eq(0).text(title + " - Flow Your Life");
