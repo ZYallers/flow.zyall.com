@@ -342,11 +342,11 @@ footer ul li{padding-left:0}
 }
 
 
-/* ZYaller Diy */
+/* ZYaller DIY */
 section{background:rgb(245,245,245);font-family:roboto-regular,sans-serif;font-size:1.7rem;line-height:3rem;color:rgb(17,17,17);padding-top:6rem;padding-bottom:3rem}
 div.content-media{text-align:center}
 @media only screen and (min-width:768px){
-    div.content-media img{width:70%}
+    div.content-media img{width:100%;padding-left:6rem;padding-right:6rem}
 }
 div.bricks-loading{text-align:center}
 div.bricks-loading > i{animation:fa-spin 2s infinite linear}
