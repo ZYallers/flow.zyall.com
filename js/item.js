@@ -24,12 +24,10 @@
     var RandImageCacheSet = [];
 
     /* Preloader */
-    var Preloader = function () {
+    var Preloader = function (fn) {
         $WIN.on('load', function () {
-            // will first fade out the loading animation
-            $("#loader").fadeOut("slow", function () {
-                // will fade out the whole DIV that covers the website.
-                $("#preloader").delay(300).fadeOut("slow");
+            $(".preloader").delay(300).fadeOut('slow', function () {
+                fn();
             });
         });
     };
@@ -145,24 +143,31 @@
 
     /** Back to Top */
     var BackToTop = function () {
-        var pxShow = 500,              // height on which the button will show
-            fadeInTime = 400,          // how slow/fast you want the button to show
-            fadeOutTime = 400,         // how slow/fast you want the button to hide
-            scrollSpeed = 300,         // how slow/fast you want the button to scroll to top. can be a value, 'slow', 'normal' or 'fast'
-            goTopButton = $("#go-top");
-
-        // Show or hide the sticky footer button
-        $WIN.on('scroll', function () {
-            if ($WIN.scrollTop() >= pxShow) {
-                goTopButton.fadeIn(fadeInTime);
-            } else {
-                goTopButton.fadeOut(fadeOutTime);
+        var actualScrollHandler = function () {
+            var goTopButton = $("#go-top");
+            return function () {
+                if (SoHuCsIsNeed && !SoHuCsHaveLoaded) {
+                    SoHuCsScroll();
+                }
+                var scrollTop = $WIN.scrollTop();
+                if (scrollTop >= 500) {
+                    goTopButton.fadeIn(400);
+                } else {
+                    goTopButton.fadeOut(400);
+                }
             }
-            
-            if (SoHuCsIsNeed && !SoHuCsHaveLoaded) {
-                SoHuCsScroll();
+        };
+        var throttle = function (fn, wait) {
+            var time = Date.now();
+            return function () {
+                var n = Date.now()
+                if ((time + wait - n) < 0) {
+                    time = n;
+                    fn();
+                }
             }
-        });
+        };
+        $WIN.on('scroll', throttle(actualScrollHandler(), 100));
     };
 
     /** GetOneRandImage */
@@ -178,8 +183,8 @@
         return res;
     };
 
-    /** BodyBackgroundImage */
-    var BodyBackgroundImage = function () {
+    /** BodyBgLoader */
+    var BodyBgLoader = function () {
         $('body').css({
             'background-image': 'url(' + GetOneRandImage(window.BACKGROUND_IMAGE) + ')',
             'transition': 'transform .3s ease-out',
@@ -212,22 +217,22 @@
             var contentHtml = Base64.decode(content);
 
             var arr = contentHtml.split('\n');
-            var date = '', meta = '', image = '', title= '';
-            for (var i=0; i < arr.length; i++) {
+            var date = '', meta = '', image = '', title = '';
+            for (var i = 0; i < arr.length; i++) {
                 var lineValue = arr[i].trim();
                 if (lineValue === '') {
                     continue;
                 }
-                if (lineValue.match(/^\[\/\/]:# [("](.*)?[)"]/g) != null && RegExp.$1 !== ''){
+                if (lineValue.match(/^\[\/\/]:# [("](.*)?[)"]/g) != null && RegExp.$1 !== '') {
                     var tmp = RegExp.$1.split('|');
-                    if (tmp.length ===3){
+                    if (tmp.length === 3) {
                         date = tmp[0];
                         meta = tmp[1];
                         image = tmp[2];
                     }
                     continue;
                 }
-                if (lineValue.match(/^# (.*)?/g) != null && RegExp.$1 !== ''){
+                if (lineValue.match(/^# (.*)?/g) != null && RegExp.$1 !== '') {
                     title = RegExp.$1.trim();
                     break;
                 }
@@ -242,11 +247,11 @@
 
             $("#item-size").text((size / 1024).toFixed(2) + " KB");
 
-            if (date !== ''){
+            if (date !== '') {
                 $("#item-date").removeClass('hide').text(date);
             }
 
-            if (meta !== ''){
+            if (meta !== '') {
                 $('#item-meta').attr("href", "/?m=" + meta.toLowerCase()).text(meta.toUpperCase());
             }
 
@@ -335,74 +340,74 @@
         SoHuCsIsNeed = false,
         SoHuCsHaveLoaded = false,
         SoHuCsScroll = function () {
-        var mobileWidth = 415;
-        var clientWidth = window.innerWidth || document.documentElement.clientWidth;
-        var minHeight = clientWidth < 500 ? 700 : 400;
+            var mobileWidth = 415;
+            var clientWidth = window.innerWidth || document.documentElement.clientWidth;
+            var minHeight = clientWidth < 500 ? 700 : 400;
 
-        if ($(document).height() - $WIN.height() - $WIN.scrollTop() > minHeight) {
-            return;
-        }
+            if ($(document).height() - $WIN.height() - $WIN.scrollTop() > minHeight) {
+                return;
+            }
 
-        SoHuCsHaveLoaded = true;
-        $sohucs.parent().slideDown();
+            SoHuCsHaveLoaded = true;
+            $sohucs.parent().slideDown();
 
-        var appid = 'cyvtmo2ww';
-        var conf = 'prod_2245ad762922c6b6c41386af7264cdad';
+            var appid = 'cyvtmo2ww';
+            var conf = 'prod_2245ad762922c6b6c41386af7264cdad';
 
-        if (clientWidth < mobileWidth) {
-            var head = document.getElementsByTagName('head')[0] || document.head || document.documentElement;
-            var script = document.createElement('script');
-            script.id = 'changyan_mobile_js';
-            script.src = 'https://cy-cdn.kuaizhan.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf;
-            head.appendChild(script);
-        } else {
-            LoadJS("https://cy-cdn.kuaizhan.com/upload/changyan.js", function () {
-                window.changyan.api.config({appid: appid, conf: conf});
-            });
-        }
-
-        setTimeout(function () {
-            $("div.bricks-loading").slideUp("normal", function () {
-                $sohucs.slideDown("slow", function () {
-                    if (clientWidth < mobileWidth) {
-                        $("div.list-footer-wrapper-wap").remove();
-                        setTimeout(function () {
-                            $("span.prop-ico").parent().remove();
-                        }, 1000);
-                    } else {
-                        $("div.module-cmt-footer").remove();
-                        setTimeout(function () {
-                            $("span.click-prop-gw").each(function () {
-                                $(this).prev().remove();
-                                $(this).remove();
-                            });
-                        }, 1000);
-                    }
+            if (clientWidth < mobileWidth) {
+                var head = document.getElementsByTagName('head')[0] || document.head || document.documentElement;
+                var script = document.createElement('script');
+                script.id = 'changyan_mobile_js';
+                script.src = 'https://cy-cdn.kuaizhan.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf;
+                head.appendChild(script);
+            } else {
+                LoadJS("https://cy-cdn.kuaizhan.com/upload/changyan.js", function () {
+                    window.changyan.api.config({appid: appid, conf: conf});
                 });
-            });
-        }, 3000);
+            }
 
-    },
+            setTimeout(function () {
+                $("div.bricks-loading").slideUp("normal", function () {
+                    $sohucs.slideDown("slow", function () {
+                        if (clientWidth < mobileWidth) {
+                            $("div.list-footer-wrapper-wap").remove();
+                            setTimeout(function () {
+                                $("span.prop-ico").parent().remove();
+                            }, 1000);
+                        } else {
+                            $("div.module-cmt-footer").remove();
+                            setTimeout(function () {
+                                $("span.click-prop-gw").each(function () {
+                                    $(this).prev().remove();
+                                    $(this).remove();
+                                });
+                            }, 1000);
+                        }
+                    });
+                });
+            }, 3000);
+        },
         SohuChangYan = function () {
-        SoHuCsIsNeed = true;
-        var sid = GetUrlParam('s');
-        if (sid === null || sid === "") {
-            return;
-        }
-        $sohucs.attr("sid", sid);
-    };
+            SoHuCsIsNeed = true;
+            var sid = GetUrlParam('s');
+            if (sid === null || sid === "") {
+                return;
+            }
+            $sohucs.attr("sid", sid);
+        };
 
     /** Initialize */
     (function ssInit() {
-        BodyBackgroundImage();
-        GetContent(SohuChangYan);
-        Preloader();
-        SuperFish();
-        MobileNav();
-        Search();
-        SmoothScroll();
-        Placeholder();
-        BackToTop();
+        Preloader(function () {
+            BodyBgLoader();
+            GetContent(SohuChangYan);
+            SuperFish();
+            MobileNav();
+            Search();
+            SmoothScroll();
+            Placeholder();
+            BackToTop();
+        });
     })();
 
 })(jQuery);

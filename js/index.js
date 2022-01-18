@@ -1,11 +1,9 @@
 (function ($) {
     "use strict";
     var $WIN = $(window),
-        footer = $('footer'),
         articleContainer = $('#article-container'),
         listsItemTemplate = $('#lists-item-template').html(),
         Cache = new WebStorageCache({storage: 'localStorage'}),
-        pageSize = 12,
         ot = 'Z2hwX3huNXRISUVtVjI4c1FaaE1JQ1EzdzJYY1FyU0FxdDFvSkMydg==',
         searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
         repoExtn = 'repo:ZYallers/ZYaller+extension:md',
@@ -22,8 +20,8 @@
     };
 
     /** set pagination */
-    var GetPagination = function (total) {
-        if (!(total > 0) || total <= pageSize) {
+    var GetPagination = function (total, page, size) {
+        if (!(total > 0) || total <= size) {
             return;
         }
 
@@ -31,8 +29,8 @@
             arr = [],
             query = GetUrlParam('q'),
             meta = GetUrlParam('m'),
-            page = GetUrlParam('page') || 1,
-            totalPage = Math.ceil(total / pageSize),
+            page = page > 0 ? page : (GetUrlParam('page') || 1),
+            totalPage = Math.ceil(total / size),
             href = (query ? 'q=' + query : '') + (meta ? '&m=' + meta : '');
 
         href = href ? '?' + href + '&page=' : '?page=';
@@ -58,7 +56,7 @@
     /** template html */
     var MicroTemplate = function (src, data) {
         // replace {{tags}} in source
-        return src.replace(/\{\{([\w\-_\.]+)\}\}/gi, function (match, key) {
+        return src.replace(/{{([\w\-_.]+)}}/gi, function (match, key) {
             // walk through objects to get value
             var value = data;
             key.split('.').forEach(function (part) {
@@ -139,16 +137,17 @@
 
     /** AppendArticle */
     var AppendArticle = function (item, text) {
-        var article = GetArticleData(item, text);
-        var html = MicroTemplate(listsItemTemplate, article);
-        articleContainer.append(html);
+        var article = GetArticleData(item, text),
+            content = MicroTemplate(listsItemTemplate, article),
+            $item = $(content);
+        $item.imagesLoaded().done(function (instance) {
+            $grid.append($item).masonry('appended', $item);
+        });
     }
 
     /** GetArticles */
-    var GetArticles = function (lists, callback) {
-        var items = lists.items;
-        $.itemLoadedCount = 0;
-        for (var cursor = 0; cursor < items.length; cursor++) {
+    var GetArticles = function (lists) {
+        for (var cursor = 0; cursor < lists.items.length; cursor++) {
             (function (item, cursor) {
                 setTimeout(function () {
                     var isNeedReload = true;
@@ -157,8 +156,7 @@
                         if (text) {
                             isNeedReload = false;
                             AppendArticle(item, text);
-                            $.itemLoadedCount++;
-                            console.log('read from cache, sha:', item['sha'], 'loaded:', $.itemLoadedCount);
+                            console.log('read from cache, sha:', item['sha'], 'loaded, cursor:', cursor);
                         }
                     }
                     if (isNeedReload) {
@@ -166,56 +164,32 @@
                             url: 'https://api.github.com/repos/ZYallers/ZYaller/git/blobs/' + item['sha'],
                             headers: {Authorization: "token " + Base64.decode(ot)},
                             async: true, // 异步方式
-                            timeout: 5000, // 5秒
+                            timeout: 10000, // 10秒
                             dataType: 'json',
                             complete: function (xhr, ts) {
                                 if (ts === 'success') {
                                     AppendArticle(item, xhr['responseText']);
-                                    $.itemLoadedCount++;
-                                    console.log('reload data, sha:', item['sha'], 'loaded:', $.itemLoadedCount);
                                     if (Cache.isSupported()) {
                                         Cache.set(item['sha'], xhr['responseText'], {exp: 3600});
                                     }
+                                    console.log('reload data, sha:', item['sha'], 'loaded, cursor:', cursor);
                                 }
                             }
                         });
                     }
-                },cursor * 300);
-            })(items[cursor], cursor);
+                }, cursor * 150);
+            })(lists.items[cursor], cursor);
         }
-
-        $.itemCallbackRetried = 0;
-        $.itemCallbackInterval = setInterval(function () {
-            $.itemCallbackRetried++;
-            console.log('try article callback...', $.itemCallbackRetried);
-            if ($.itemCallbackRetried > 20) {
-                clearInterval($.itemCallbackInterval);
-                console.log('try article callback more than maximum');
-                iziToast.error({
-                    timeout: 5000,
-                    icon: 'fa fa-frown-o',
-                    position: 'topRight',
-                    title: 'TIMEOUT',
-                    message: 'Try article callback more than maximum'
-                });
-            } else {
-                if (items.length === $.itemLoadedCount) {
-                    clearInterval($.itemCallbackInterval);
-                    callback(lists);
-                }
-            }
-        }, 500);
     };
 
-    /** get list data */
-    var GetLists = function (success, error) {
+    /** GetLists */
+    var GetLists = function (page, size, success) {
         var keyword = GetUrlParam('q'),
             meta = GetUrlParam('m'),
-            page = GetUrlParam('page') || 1,
+            page = page || 1,
             query = (keyword ? keyword + '+' : '') + 'path:/tag' + (meta ? '/' + meta : ''),
-            api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + pageSize;
-
-        var isNeedReload = true;
+            api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + size,
+            isNeedReload = true;
         if (Cache.isSupported()) {
             var lists = Cache.get(encodeURI(api));
             if (lists) {
@@ -239,14 +213,24 @@
                     success(lists);
                 },
                 error: function (xhr, ts, er) {
-                    error(ts);
+                    var msg = 'Error occurred, try reload it!';
+                    if (ts === 'timeout') {
+                        msg = 'Network slow, try reload it!';
+                    }
+                    iziToast.error({
+                        timeout: 5000,
+                        icon: 'fa fa-frown-o',
+                        position: 'topRight',
+                        title: ts.toUpperCase(),
+                        message: msg
+                    });
                 }
             });
         }
     };
 
-    /** SetBodyBackgroundImage */
-    var SetBodyBackgroundImage = function () {
+    /** BodyBgLoader */
+    var BodyBgLoader = function () {
         $('body').css({
             'background-image': 'url(' + GetOneRandImage(window.BACKGROUND_IMAGE) + ')',
             'transition': 'transform .3s ease-out',
@@ -259,13 +243,12 @@
         });
     };
 
-    /** Preloader  */
-    var Preloader = function (callback) {
-        $WIN.on('load', function () {
-            $("#loader").fadeOut('slow', function () {
-                // will fade out the whole DIV that covers the website.
-                $("#preloader").delay(300).fadeOut('slow', callback);
-            });
+    /** Preloader */
+    var Preloader = function (fn) {
+        $WIN.on('resize', function () {
+            $('article.animate-this').removeClass('animate-this animated fadeInUp');
+        }).on('load', function () {
+            fn();
         });
     };
 
@@ -380,74 +363,90 @@
 
     /** Back to Top */
     var BackToTop = function () {
-        var pxShow = 500,         // height on which the button will show
-            fadeInTime = 400,     // how slow/fast you want the button to show
-            fadeOutTime = 400,    // how slow/fast you want the button to hide
-            scrollSpeed = 300,    // how slow/fast you want the button to scroll to top. can be a value, 'slow', 'normal' or 'fast'
-            goTopButton = $("#go-top");
-        // Show or hide the sticky footer button
-        $WIN.on('scroll', function () {
-            if ($WIN.scrollTop() >= pxShow) {
-                goTopButton.fadeIn(fadeInTime);
-            } else {
-                goTopButton.fadeOut(fadeOutTime);
+        var actualScrollHandler = function () {
+            var goTopButton = $("#go-top"),
+                maxTime = 4,
+                counter = 0,
+                lock = false,
+                page = (parseInt(GetUrlParam('page')) || 1) + 1;
+            return function () {
+                var scrollTop = $WIN.scrollTop();
+                if (!lock) {
+                    var clientWidth = window.innerWidth || document.documentElement.clientWidth,
+                        minHeight = clientWidth < 500 ? 700 : 350,
+                        gapBottom = $(document).height() - $WIN.height() - scrollTop;
+                    if (gapBottom <= minHeight) {
+                        lock = true;
+                        $('.preloader').fadeIn(300, function () {
+                            GetLists(page, 8, function (lists) {
+                                $('.preloader').fadeOut(300, function () {
+                                    GetArticles(lists);
+                                    counter++;
+                                    if (counter >= maxTime) {
+                                        GetPagination(lists['total_count'], page + 1, 8);
+                                    } else {
+                                        page++;
+                                        lock = false;
+                                    }
+                                });
+                            });
+                        });
+                    }
+                }
+
+                if (scrollTop >= 500) {
+                    goTopButton.fadeIn(400);
+                } else {
+                    goTopButton.fadeOut(400);
+                }
             }
-        });
+        };
+        var throttle = function (fn, wait) {
+            var time = Date.now();
+            return function () {
+                var n = Date.now()
+                if ((time + wait - n) < 0) {
+                    time = n;
+                    fn();
+                }
+            }
+        };
+        $WIN.on('scroll', throttle(actualScrollHandler(), 100));
     };
+
+    var $grid = articleContainer.masonry({
+        //initLayout: false,
+        itemSelector: 'article.entry',
+        columnWidth: 'div.grid-sizer',
+        horizontalOrder: true,
+        percentPosition: true,
+        resize: true
+    });
 
     /** Initialize */
     (function Init() {
-        SetBodyBackgroundImage();
         Preloader(function () {
-            GetLists(function (lists) {
-                if (lists || lists['incomplete_results'] === false) {
-                    if (lists.items.length > 0) {
-                        GetArticles(lists, function (lists) {
-                            articleContainer.imagesLoaded(function () {
-                                console.log('article image loaded');
-                                articleContainer.masonry({
-                                    itemSelector: 'article.entry',
-                                    columnWidth: 'div.grid-sizer',
-                                    percentPosition: true,
-                                    resize: true
-                                });
-
-                                $WIN.on('resize', function () {
-                                    $('article.animate-this').removeClass('animate-this animated fadeInUp');
-                                });
-
-                                GetPagination(lists['total_count']);
-                                footer.fadeIn("slow");
-                            });
-                        });
-                    } else {
+            BodyBgLoader();
+            GetLists(GetUrlParam('page'), 8, function (lists) {
+                $('.preloader').fadeOut(300, function () {
+                    if (!lists || lists['incomplete_results'] === true || lists.items.length === 0) {
                         articleContainer.html(
                             '<div style="text-align: center;margin: 10rem 0">' +
                             '   <div class="fa fa-frown-o" style="font-size: -webkit-xxx-large;"></div>' +
-                            '   <div style="font-size: larger;">No matching files found.</div>' +
-                            '</div>');
+                            '   <div style="font-size: larger;">No matching files found</div>' +
+                            '</div>'
+                        );
+                        return;
                     }
-                }
-            }, function (ts) {
-                var msg = 'Error occurred, try reload it!';
-                if (ts === 'timeout') {
-                    msg = 'Network slow, try reload it!';
-                }
-                iziToast.error({
-                    timeout: 5000,
-                    icon: 'fa fa-frown-o',
-                    position: 'topRight',
-                    title: ts.toUpperCase(),
-                    message: msg
+                    GetArticles(lists);
                 });
             });
+            SuperFish();
+            MobileNav();
+            MenuSearch();
+            SmoothScroll();
+            Placeholder();
+            BackToTop();
         });
-        SuperFish();
-        MobileNav();
-        MenuSearch();
-        SmoothScroll();
-        Placeholder();
-        BackToTop();
     })();
-
 })(jQuery);
