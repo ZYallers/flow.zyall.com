@@ -104,6 +104,10 @@
             var arr = window.location.search.substr(1).match(new RegExp("(^|&)" + name + "=([^&]*)(&|$)"));
             return arr != null ? arr[2] : null;
         },
+        IsMobile: function () {
+            var clientWidth = window.innerWidth || document.documentElement.clientWidth
+            return clientWidth < 500;
+        }
     };
     var $WIN = $(window),
         articleContainer = $('#article-container'),
@@ -491,49 +495,50 @@
         Placeholder: function () {
             $('input, textarea, select').placeholder();
         },
+        Loader: {
+            Show: function (fn) {
+                $('.preloader').delay(300).fadeIn('slow', function () {
+                    $('html,body').stop().animate({scrollTop: $(document).height()}, 'slow', 'swing').promise().done(fn);
+                });
+            },
+            Hide: function (fn) {
+                $('.preloader').delay(600).fadeOut('slow', fn);
+            }
+        },
         BackToTop: function () {
             var actualScrollHandler = function () {
-                var goTopButton = $("#go-top"),
-                    maxTime = 4,
-                    counter = 0,
-                    lock = false,
-                    page = (parseInt(helper.GetUrlParam('page')) || 1) + 1;
-                var autoScroll = function (fn) {
-                    $('html,body').animate({scrollTop: $WIN.scrollTop() + 500}, 'slow', 'swing').promise().done(fn);
-                };
+                var goTopButton = $("#go-top"), maxTime = 4, counter = 0, lock = false,
+                    minHeight = helper.IsMobile() ? 30 : 10,
+                    page = (parseInt(helper.GetUrlParam('page')) || 1) + 1,
+                    autoScroll = function (fn) {
+                        $('html,body').stop().animate({scrollTop: $WIN.scrollTop() + 400}, 'slow', 'swing').promise().done(fn);
+                    };
                 return function () {
                     var scrollTop = $WIN.scrollTop();
-                    if (!lock) {
-                        var minHeight = 10, gapBottom = $(document).height() - $WIN.height() - scrollTop;
-                        //console.log(gapBottom);
-                        if (gapBottom <= minHeight) {
-                            lock = true;
-                            $('.preloader').delay(300).fadeIn('slow', function () {
-                                index.GetLists(page, 8, function (lists) {
-                                    $('.preloader').delay(600).fadeOut('slow', function () {
-                                        index.GetArticles(lists);
-                                        counter++;
-                                        if (counter >= maxTime) {
-                                            autoScroll(function () {
-                                                index.GetPagination(lists['total_count'], page + 1, 8);
-                                            });
-                                        } else {
-                                            autoScroll(function () {
-                                                page++;
-                                                lock = false;
-                                            });
-                                        }
+                    if (scrollTop >= 700) goTopButton.fadeIn(400)
+                    else goTopButton.fadeOut(400);
+                    if (lock) return;
+                    //console.log($(document).height() - $WIN.height() - scrollTop);
+                    if (($(document).height() - $WIN.height() - scrollTop) > minHeight) return;
+                    lock = true;
+                    index.Loader.Show(function () {
+                        index.GetLists(page, 4, function (lists) {
+                            index.Loader.Hide(function () {
+                                index.GetArticles(lists);
+                                counter++;
+                                if (counter >= maxTime) {
+                                    autoScroll(function () {
+                                        index.GetPagination(lists['total_count'], page + 1, 4);
                                     });
-                                });
+                                } else {
+                                    autoScroll(function () {
+                                        page++;
+                                        lock = false;
+                                    });
+                                }
                             });
-                        }
-                    }
-
-                    if (scrollTop >= 500) {
-                        goTopButton.fadeIn(400);
-                    } else {
-                        goTopButton.fadeOut(400);
-                    }
+                        });
+                    });
                 }
             };
             var throttle = function (fn, wait) {
@@ -546,14 +551,14 @@
                     }
                 }
             };
-            $WIN.on('scroll', throttle(actualScrollHandler(), 60));
+            $WIN.on('scroll', throttle(actualScrollHandler(), 20));
         }
     };
 
     index.Preloader(function () {
         index.BodyBgLoader();
-        index.GetLists(helper.GetUrlParam('page'), 8, function (lists) {
-            $('.preloader').delay(600).fadeOut('slow', function () {
+        index.GetLists(helper.GetUrlParam('page'), helper.IsMobile() ? 4 : 8, function (lists) {
+            index.Loader.Hide(function () {
                 if (!lists || lists['incomplete_results'] === true || lists.items.length === 0) {
                     articleContainer.html(
                         '<div style="text-align:center;margin:10rem 0">' +

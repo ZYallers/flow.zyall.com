@@ -125,7 +125,10 @@
             var arr = window.location.search.substr(1).match(new RegExp("(^|&)" + name + "=([^&]*)(&|$)"));
             return arr != null ? arr[2] : null;
         },
-
+        IsMobile: function () {
+            var clientWidth = window.innerWidth || document.documentElement.clientWidth
+            return clientWidth < 500;
+        }
     };
     var $WIN = $(window),
         RandImageCacheSet = [],
@@ -139,7 +142,9 @@
         },
         $sohucs = $("#SOHUCS"),
         SoHuCsIsNeed = false,
-        SoHuCsHaveLoaded = false;
+        SoHuCsHaveLoaded = false,
+        SoHuAppid = 'cyvtmo2ww',
+        SoHuConf = 'prod_2245ad762922c6b6c41386af7264cdad';
     var item = {
         BodyBgImage: [
             'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/IKMsqwyaR6qN0kq48STw_annapurna.jpg',
@@ -202,11 +207,6 @@
             'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1531976283823-ff4d70a477ab.jpeg',
             'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1533982497304-dbc0574a309d.jpeg'
         ],
-        Preloader: function (fn) {
-            $WIN.on('load', function () {
-                $(".preloader").delay(600).fadeOut('slow', fn);
-            });
-        },
         SuperFish: function () {
             $('ul.sf-menu').superfish({
                 animation: {height: 'show'},    // slide-down effect without fade-in
@@ -285,6 +285,21 @@
         },
         Placeholder: function () {
             $('input, textarea, select').placeholder();
+        },
+        Loader: {
+            Show: function (fn) {
+                $('.preloader').delay(300).fadeIn('slow', function () {
+                    $('html,body').stop().animate({scrollTop: $(document).height()}, 'slow', 'swing').promise().done(fn);
+                });
+            },
+            Hide: function (fn) {
+                $('.preloader').delay(600).fadeOut('slow', fn);
+            }
+        },
+        Preloader: function (fn) {
+            $WIN.on('load', function () {
+                item.Loader.Hide(fn);
+            });
         },
         BackToTop: function () {
             var actualScrollHandler = function () {
@@ -438,34 +453,25 @@
             }
         },
         SoHuCsScroll: function () {
-            var mobileWidth = 415, clientWidth = window.innerWidth || document.documentElement.clientWidth,
-                minHeight = clientWidth < 500 ? 700 : 400;
-            if (($(document).height() - $WIN.height() - $WIN.scrollTop()) > minHeight) {
-                return;
-            }
-
+            var isMobile = helper.IsMobile(), minHeight = isMobile ? 700 : 400;
+            if (($(document).height() - $WIN.height() - $WIN.scrollTop()) > minHeight) return;
             SoHuCsHaveLoaded = true;
             $sohucs.parent().slideDown();
-
-            var appid = 'cyvtmo2ww';
-            var conf = 'prod_2245ad762922c6b6c41386af7264cdad';
-
-            if (clientWidth < mobileWidth) {
+            if (isMobile) {
                 var head = document.getElementsByTagName('head')[0] || document.head || document.documentElement;
                 var script = document.createElement('script');
                 script.id = 'changyan_mobile_js';
-                script.src = 'https://cy-cdn.kuaizhan.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf;
+                script.src = 'https://cy-cdn.kuaizhan.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + SoHuAppid + '&conf=' + SoHuConf;
                 head.appendChild(script);
             } else {
                 helper.LoadJs("https://cy-cdn.kuaizhan.com/upload/changyan.js", function () {
-                    window.changyan.api.config({appid: appid, conf: conf});
+                    window.changyan.api.config({appid: SoHuAppid, conf: SoHuConf});
                 });
             }
-
             setTimeout(function () {
                 $("div.bricks-loading").slideUp("normal", function () {
                     $sohucs.slideDown("slow", function () {
-                        if (clientWidth < mobileWidth) {
+                        if (helper.IsMobile()) {
                             $("div.list-footer-wrapper-wap").remove();
                             setTimeout(function () {
                                 $("span.prop-ico").parent().remove();
