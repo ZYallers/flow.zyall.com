@@ -9,7 +9,7 @@ html{font-size:10px}
 @media only screen and (max-width:1024px){html{font-size:9.4px}}
 @media only screen and (max-width:768px){html{font-size:10px}}
 @media only screen and (max-width:400px){html{font-size:9.4px}}
-html,body{height:100%}
+html,body{height:100%;scroll-behavior:smooth}
 body{background:#f5f5f5;font-family:"roboto-regular",sans-serif;font-size:1.7rem;line-height:3rem;color:#111111}
 
 
