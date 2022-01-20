@@ -99,6 +99,80 @@
             return string;
         }
     };
+    var Photo = {
+        backgroundBaseUrl: 'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/',
+        background: [
+            'IKMsqwyaR6qN0kq48STw_annapurna.jpg',
+            'photo-1432256851563-20155d0b7a39.jpeg',
+            'photo-1444041401850-6d9f537550c4.jpeg',
+            'photo-1482192505345-5655af888cc4.jpeg',
+            'photo-1488503674815-d6c13687ff65.jpeg',
+            'photo-1489703197108-878f05f4b31b.jpeg',
+            'photo-1497996377197-e4b9024658a4.jpeg',
+            'photo-1500993855538-c6a99f437aa7.jpeg',
+            'photo-1525466888468-cb6a1b6dc486.jpeg',
+            'photo-1526402978125-f1d6df91cbac.jpeg',
+            'shitou-he-shan.jpg',
+            'stock-photo-173565125.jpg',
+            'wdXqHcTwSTmLuKOGz92L_Landscape.jpg'
+        ],
+        sectionBaseUrl: 'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/',
+        section: [
+            'photo-1422207258071-70754198c4a2.jpeg',
+            'photo-1422207258071-70754198cde3.png',
+            'photo-1427384924179-da03b8c3ccf8.jpeg',
+            'photo-1453230645768-7ecb0653013d.jpeg',
+            'photo-1453805622064-de9796753c22.jpeg',
+            'photo-1465101011108-4894b8cf5ec9.jpeg',
+            'photo-1467659226669-a1360d97be2d.jpeg',
+            'photo-1471644865643-fe726490270a.jpeg',
+            'photo-1474511019749-26a5a4b632b2.jpeg',
+            'photo-1475724017904-b712052c192a.jpeg',
+            'photo-1480506132288-68f7705954bd.jpeg',
+            'photo-1481400239811-cd7d97777edc.jpeg',
+            'photo-1483030096298-4ca126b58199.jpeg',
+            'photo-1483356256511-b48749959172.jpeg',
+            'photo-1484950763426-56b5bf172dbb.jpeg',
+            'photo-1485291571150-772bcfc10da5.jpeg',
+            'photo-1485470733090-0aae1788d5af.jpeg',
+            'photo-1486758206125-94d07f414b1c.jpeg',
+            'photo-1487695396764-5e73255e78d9.jpeg',
+            'photo-1491924759721-64cea51ecd6e.jpeg',
+            'photo-1494007485290-ce668e189d92.jpeg',
+            'photo-1495512446763-b2bdc445b4db.jpeg',
+            'photo-1497616987741-7fba8102046e.jpeg',
+            'photo-1501030834146-c0b1914e72be.jpeg',
+            'photo-1501973801540-537f08ccae7b.jpeg',
+            'photo-1502083728181-687546e77613.jpeg',
+            'photo-1503104538136-7491acef4d5d.jpeg',
+            'photo-1503248739195-65669aaf5b0f.jpeg',
+            'photo-1505753065532-68713e211a3d.jpeg',
+            'photo-1505939374277-8d746c530068.jpeg',
+            'photo-1506297282690-18c075dcf9a4.jpeg',
+            'photo-1516280906200-bf75a67eb01a.jpeg',
+            'photo-1517531874685-ae7d6eb69383.jpeg',
+            'photo-1519342885256-48793c97ee37.jpeg',
+            'photo-1521188453774-625d3fa52b67.jpeg',
+            'photo-1523436278115-b135a7a26ad6.jpeg',
+            'photo-1525019060245-a02c43a44253.jpeg',
+            'photo-1526251641086-8047e534f6bd.jpeg',
+            'photo-1526925712774-2833a7ecd0d4.jpeg',
+            'photo-1528558430639-e835f5953f3f.jpeg',
+            'photo-1529772187639-085af5eb1c40.jpeg',
+            'photo-1530861579116-b19f2dbf0ca3.jpeg',
+            'photo-1531976283823-ff4d70a477ab.jpeg',
+            'photo-1533982497304-dbc0574a309d.jpeg'
+        ],
+        randCacheArray: [],
+        Rand: function (type) {
+            var source = this.background;
+            if (type === 2) {
+                source = this.section;
+                return this.sectionBaseUrl + source[Math.floor((Math.random() * source.length))];
+            }
+            return this.backgroundBaseUrl + source[Math.floor((Math.random() * source.length))];
+        }
+    };
     var helper = {
         LoadJs: function (d, a) {
             var c = document.getElementsByTagName("head")[0] || document.head || document.documentElement;
@@ -128,10 +202,18 @@
         IsMobile: function () {
             var clientWidth = window.innerWidth || document.documentElement.clientWidth
             return clientWidth < 500;
+        },
+        Toast: function (ts, msg, timeout) {
+            iziToast.error({
+                timeout: timeout || 5000,
+                icon: 'fa fa-frown-o',
+                position: 'topRight',
+                title: ts.toUpperCase() + '：',
+                message: msg
+            });
         }
     };
     var $WIN = $(window),
-        RandImageCacheSet = [],
         ot = 'Z2hwX3huNXRISUVtVjI4c1FaaE1JQ1EzdzJYY1FyU0FxdDFvSkMydg==',
         Cache = new WebStorageCache({storage: 'localStorage'}),
         cfg = {
@@ -146,67 +228,21 @@
         SoHuAppid = 'cyvtmo2ww',
         SoHuConf = 'prod_2245ad762922c6b6c41386af7264cdad';
     var item = {
-        BodyBgImage: [
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/IKMsqwyaR6qN0kq48STw_annapurna.jpg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1432256851563-20155d0b7a39.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1444041401850-6d9f537550c4.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1482192505345-5655af888cc4.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1488503674815-d6c13687ff65.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1489703197108-878f05f4b31b.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1497996377197-e4b9024658a4.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1500993855538-c6a99f437aa7.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1525466888468-cb6a1b6dc486.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/photo-1526402978125-f1d6df91cbac.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/shitou-he-shan.jpg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/stock-photo-173565125.jpg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/wdXqHcTwSTmLuKOGz92L_Landscape.jpg'
-        ],
-        SectionImage: [
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1422207258071-70754198c4a2.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1422207258071-70754198cde3.png',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1427384924179-da03b8c3ccf8.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1453230645768-7ecb0653013d.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1453805622064-de9796753c22.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1465101011108-4894b8cf5ec9.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1467659226669-a1360d97be2d.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1471644865643-fe726490270a.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1474511019749-26a5a4b632b2.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1475724017904-b712052c192a.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1480506132288-68f7705954bd.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1481400239811-cd7d97777edc.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1483030096298-4ca126b58199.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1483356256511-b48749959172.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1484950763426-56b5bf172dbb.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1485291571150-772bcfc10da5.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1485470733090-0aae1788d5af.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1486758206125-94d07f414b1c.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1487695396764-5e73255e78d9.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1491924759721-64cea51ecd6e.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1494007485290-ce668e189d92.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1495512446763-b2bdc445b4db.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1497616987741-7fba8102046e.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1501030834146-c0b1914e72be.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1501973801540-537f08ccae7b.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1502083728181-687546e77613.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1503104538136-7491acef4d5d.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1503248739195-65669aaf5b0f.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1505753065532-68713e211a3d.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1505939374277-8d746c530068.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1506297282690-18c075dcf9a4.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1516280906200-bf75a67eb01a.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1517531874685-ae7d6eb69383.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1519342885256-48793c97ee37.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1521188453774-625d3fa52b67.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1523436278115-b135a7a26ad6.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1525019060245-a02c43a44253.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1526251641086-8047e534f6bd.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1526925712774-2833a7ecd0d4.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1528558430639-e835f5953f3f.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1529772187639-085af5eb1c40.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1530861579116-b19f2dbf0ca3.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1531976283823-ff4d70a477ab.jpeg',
-            'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/photo-1533982497304-dbc0574a309d.jpeg'
-        ],
+        Loader: {
+            Show: function (fn) {
+                $('.preloader').delay(300).fadeIn('slow', function () {
+                    $('html,body').stop().animate({scrollTop: $(document).height()}, 'slow', 'swing').promise().done(fn);
+                });
+            },
+            Hide: function (fn, wait) {
+                $('.preloader').delay(wait || 600).fadeOut('slow', fn);
+            }
+        },
+        Preloader: function (fn) {
+            $WIN.on('load', function () {
+                item.Loader.Hide(fn);
+            });
+        },
         SuperFish: function () {
             $('ul.sf-menu').superfish({
                 animation: {height: 'show'},    // slide-down effect without fade-in
@@ -286,21 +322,6 @@
         Placeholder: function () {
             $('input, textarea, select').placeholder();
         },
-        Loader: {
-            Show: function (fn) {
-                $('.preloader').delay(300).fadeIn('slow', function () {
-                    $('html,body').stop().animate({scrollTop: $(document).height()}, 'slow', 'swing').promise().done(fn);
-                });
-            },
-            Hide: function (fn) {
-                $('.preloader').delay(600).fadeOut('slow', fn);
-            }
-        },
-        Preloader: function (fn) {
-            $WIN.on('load', function () {
-                item.Loader.Hide(fn);
-            });
-        },
         BackToTop: function () {
             var actualScrollHandler = function () {
                 var goTopButton = $("#go-top");
@@ -327,20 +348,9 @@
             };
             $WIN.on('scroll', throttle(actualScrollHandler(), 100));
         },
-        GetOneRandImage: function (source) {
-            var getFunc = function () {
-                return source[Math.floor((Math.random() * source.length))];
-            };
-            var res = getFunc();
-            while (RandImageCacheSet.indexOf(res) !== -1) {
-                res = getFunc();
-            }
-            RandImageCacheSet.push(res);
-            return res;
-        },
         BodyBgLoader: function () {
             $('body').css({
-                'background-image': 'url(' + this.GetOneRandImage(this.BodyBgImage) + ')',
+                'background-image': 'url(' + Photo.Rand(1) + ')',
                 'transition': 'transform .3s ease-out',
                 'background-color': 'transparent',
                 'background-size': 'cover',
@@ -350,107 +360,76 @@
                 '-webkit-animation': 'fadein .5s ease-out 0s forwards'
             });
         },
+        ParseContent: function (resp) {
+            var size = resp["size"], ch = Base64.decode(resp["content"]), st = ch.split('\n');
+            var once = false, date = '', meta = '', image = '', title = '';
+            for (var i = 0; i < st.length; i++) {
+                var lineValue = st[i].trim();
+                if (lineValue === '') continue;
+                if (!once && lineValue.match(/^\[\/\/]:(.*)#(.*)[("](.*)?[)"]/g) != null && RegExp.$3 !== '') {
+                    once = true;
+                    var tmp = RegExp.$3.split('|');
+                    if (tmp.length > 0) date = tmp[0].trim();
+                    if (tmp.length > 1) meta = tmp[1].trim().toUpperCase();
+                    if (tmp.length > 2) image = tmp[2].trim();
+                    continue;
+                }
+                if (lineValue.match(/^# (.*)?/g) != null && RegExp.$1 !== '') {
+                    title = RegExp.$1.trim();
+                    break;
+                }
+            }
+            $('head').children('title').eq(0).text(title + " - Flow Your Life");
+            $("meta[name='description']").attr("content", title + ",Flow Your Life");
+            $("#item-title").text(title);
+            image = image || Photo.Rand(2);
+            $('#item-posters').attr('src', image);
+            $("#item-size").text((size / 1024).toFixed(2) + " KB");
+            if (date !== '') $("#item-date").removeClass('hide').text(date);
+            if (meta !== '') $('#item-meta').attr("href", "/?m=" + meta).text(meta);
+            showdown.setFlavor('github');
+            var converter = new showdown.Converter(), $itemBody = $('#item-body'), $bodyH1 = $itemBody.find('h1');
+            $itemBody.html(converter.makeHtml(ch));
+            if ($bodyH1.length > 0) $bodyH1.eq(0).hide();
+            if (window.prettyPrint) {
+                $('pre').addClass("prettyprint linenums");
+                prettyPrint();
+            }
+        },
         GetContent: function (callback) {
             var sha = helper.GetUrlParam('s');
             if (sha === null || sha === '') {
-                iziToast.error({
-                    timeout: 5000,
-                    icon: 'fa fa-frown-o',
-                    position: 'topRight',
-                    title: ts.toUpperCase(),
-                    message: '参数错误！'
-                });
+                helper.Toast('error', '参数错误');
                 return;
             }
-            var parseItemContent = function (resp) {
-                var size = resp["size"];
-                var content = resp["content"];
-                var contentHtml = Base64.decode(content);
-                var arr = contentHtml.split('\n');
-                var date = '', meta = '', image = '', title = '';
-                for (var i = 0; i < arr.length; i++) {
-                    var lineValue = arr[i].trim();
-                    if (lineValue === '') {
-                        continue;
-                    }
-                    if (lineValue.match(/^\[\/\/]:# [("](.*)?[)"]/g) != null && RegExp.$1 !== '') {
-                        var tmp = RegExp.$1.split('|');
-                        if (tmp.length === 3) {
-                            date = tmp[0];
-                            meta = tmp[1];
-                            image = tmp[2];
-                        }
-                        continue;
-                    }
-                    if (lineValue.match(/^# (.*)?/g) != null && RegExp.$1 !== '') {
-                        title = RegExp.$1.trim();
-                        break;
-                    }
-                }
-                $('head').children('title').eq(0).text(title + " - Flow Your Life");
-                $("meta[name='description']").attr("content", title + ",Flow Your Life");
-                $("#item-title").text(title);
-                image = image || item.GetOneRandImage(item.SectionImage)
-                $('#item-posters').attr('src', image);
-                $("#item-size").text((size / 1024).toFixed(2) + " KB");
-                if (date !== '') {
-                    $("#item-date").removeClass('hide').text(date);
-                }
-                if (meta !== '') {
-                    $('#item-meta').attr("href", "/?m=" + meta.toLowerCase()).text(meta.toUpperCase());
-                }
-                showdown.setFlavor('github');
-                var conv = new showdown.Converter();
-                var $itemBody = $('#item-body');
-                $itemBody.html(conv.makeHtml(contentHtml));
-                // 重复标题处理
-                var $bodyH1 = $itemBody.find('h1');
-                if ($bodyH1.length > 0) {
-                    $bodyH1.eq(0).hide();
-                }
-                // 代码高亮
-                if (window.prettyPrint) {
-                    $('pre').addClass("prettyprint linenums");
-                    prettyPrint();
-                }
-            };
-            var isNeedReload = true;
             if (Cache.isSupported()) {
                 var str = Cache.get(sha);
                 if (str) {
-                    isNeedReload = false;
                     //console.log('read from cache, sha:', sha);
-                    parseItemContent(JSON.parse(str));
-                    callback();
+                    this.ParseContent(JSON.parse(str));
+                    typeof (callback) == 'function' && callback();
+                    return;
                 }
             }
-            if (isNeedReload) {
-                $.ajax({
-                    url: 'https://api.github.com/repos/ZYallers/ZYaller/git/blobs/' + sha,
-                    headers: {Authorization: "token " + Base64.decode(ot)},
-                    async: true,    // 异步方式
-                    timeout: 10000, // 10秒
-                    dataType: 'json',
-                    complete: function (xhr, ts) {
-                        //console.log('reload data, sha:', sha);
-                        if (ts !== "success") {
-                            iziToast.error({
-                                timeout: 5000,
-                                icon: 'fa fa-frown-o',
-                                position: 'topRight',
-                                title: ts.toUpperCase(),
-                                message: '网络异常，请刷新页面重试！'
-                            });
-                            return;
-                        }
-                        if (Cache.isSupported()) {
-                            Cache.set(sha, xhr["responseText"], {exp: 3600}); // 缓存1小时
-                        }
-                        parseItemContent(xhr["responseJSON"]);
-                        typeof (callback) == 'function' && callback();
+            $.ajax({
+                url: 'https://api.github.com/repos/ZYallers/ZYaller/git/blobs/' + sha,
+                headers: {Authorization: "token " + Base64.decode(ot)},
+                async: true,    // 异步方式
+                timeout: 10000, // 10秒
+                dataType: 'json',
+                complete: function (xhr, ts) {
+                    //console.log('reload data, sha:', sha);
+                    if (ts !== "success") {
+                        helper.Toast(ts, '网络异常，请刷新页面重试');
+                        return;
                     }
-                });
-            }
+                    if (Cache.isSupported()) {
+                        Cache.set(sha, xhr["responseText"], {exp: 3600}); // 缓存1小时
+                    }
+                    item.ParseContent(xhr["responseJSON"]);
+                    typeof (callback) == 'function' && callback();
+                }
+            });
         },
         SoHuCsScroll: function () {
             var isMobile = helper.IsMobile(), minHeight = isMobile ? 700 : 400;
