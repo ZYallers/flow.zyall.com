@@ -352,49 +352,40 @@
             }
         },
         GetLists: function (page, size, success) {
-            var keyword = helper.GetUrlParam('q'),
-                meta = helper.GetUrlParam('m'),
-                page = page || 1,
+            var keyword = helper.GetUrlParam('q'), meta = helper.GetUrlParam('m'), page = page || 1,
                 query = (keyword ? keyword + '+' : '') + 'path:/tag' + (meta ? '/' + meta : ''),
-                api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + size,
-                isNeedReload = true;
+                api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + size;
             if (Cache.isSupported()) {
                 var lists = Cache.get(encodeURI(api));
                 if (lists) {
-                    isNeedReload = false;
                     //console.log('read from cache, meta:', meta, ',page:', page, ',query', keyword);
                     success(lists);
+                    return;
                 }
             }
-            if (isNeedReload) {
-                $.ajax({
-                    url: api,
-                    headers: {Authorization: "token " + Base64.decode(ot)},
-                    async: true,  // 异步方式
-                    timeout: 10000,  // 10秒
-                    dataType: 'json',
-                    success: function (lists) {
-                        if (Cache.isSupported()) {
-                            Cache.set(encodeURI(api), lists, {exp: 600}); // cache 10min
-                        }
-                        //console.log('reload data, meta:', meta, ',page:', page, ',query', keyword);
-                        success(lists);
-                    },
-                    error: function (xhr, ts, er) {
-                        var msg = 'Error occurred, try reload it!';
-                        if (ts === 'timeout') {
-                            msg = 'Network slow, try reload it!';
-                        }
-                        iziToast.error({
-                            timeout: 5000,
-                            icon: 'fa fa-frown-o',
-                            position: 'topRight',
-                            title: ts.toUpperCase(),
-                            message: msg
-                        });
+            $.ajax({
+                url: api,
+                headers: {Authorization: "token " + Base64.decode(ot)},
+                async: true,  // 异步方式
+                timeout: 10000,  // 10秒
+                dataType: 'json',
+                success: function (lists) {
+                    if (Cache.isSupported()) {
+                        Cache.set(encodeURI(api), lists, {exp: 600}); // cache 10min
                     }
-                });
-            }
+                    //console.log('reload data, meta:', meta, ',page:', page, ',query', keyword);
+                    success(lists);
+                },
+                error: function (xhr, ts) {
+                    iziToast.error({
+                        timeout: 5000,
+                        icon: 'fa fa-frown-o',
+                        position: 'topRight',
+                        title: ts.toUpperCase(),
+                        message: (ts === 'timeout') ? 'Network slow, try reload it' : 'Error occurred, try reload it'
+                    });
+                }
+            });
         },
         SuperFish: function () {
             $('ul.sf-menu').superfish({
@@ -524,6 +515,10 @@
                     index.Loader.Show(function () {
                         index.GetLists(page, 4, function (lists) {
                             index.Loader.Hide(function () {
+                                if (lists['incomplete_results'] === true || lists.items.length === 0) {
+                                    $('.no-data').show();
+                                    return;
+                                }
                                 index.GetArticles(lists);
                                 counter++;
                                 if (counter >= maxTime) {
@@ -559,7 +554,7 @@
         index.BodyBgLoader();
         index.GetLists(helper.GetUrlParam('page'), helper.IsMobile() ? 4 : 8, function (lists) {
             index.Loader.Hide(function () {
-                if (!lists || lists['incomplete_results'] === true || lists.items.length === 0) {
+                if (lists['incomplete_results'] === true || lists.items.length === 0) {
                     articleContainer.html(
                         '<div style="text-align:center;margin:10rem 0">' +
                         '   <div class="fa fa-frown-o" style="font-size:-webkit-xxx-large;"></div>' +
