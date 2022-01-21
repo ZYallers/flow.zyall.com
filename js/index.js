@@ -174,9 +174,11 @@
         }
     };
     var helper = {
-        GetUrlParam: function (name) {
+        GetUrlParam: function (name, defaultValue) {
             var arr = window.location.search.substr(1).match(new RegExp("(^|&)" + name + "=([^&]*)(&|$)"));
-            return arr != null ? arr[2] : null;
+            if (arr != null) return arr[2];
+            if (defaultValue) return defaultValue;
+            return '';
         },
         IsMobile: function () {
             var clientWidth = window.innerWidth || document.documentElement.clientWidth
@@ -261,26 +263,21 @@
             });
         },
         GetPagination: function (total, page, size) {
-            if (!(total > 0) || total <= size) {
-                return;
-            }
             var $page = $('nav.pagination'), arr = [], query = helper.GetUrlParam('q'),
                 meta = helper.GetUrlParam('m'), totalPage = Math.ceil(total / size),
                 href = (query ? 'q=' + query : '') + (meta ? '&m=' + meta : '');
             href = href ? '?' + href + '&page=' : '?page=';
-            if (page === 1) {
-                arr.push('<span class="page-numbers inactive">Prev</span>');
-            } else if (page > 1) {
-                arr.push('<a href="' + href + (parseInt(page) - 1) + '" class="page-numbers">Prev</a>');
-            }
+
+            if (page > 9) arr.push('<a href="' + href + (parseInt(page) - 9) + '" class="page-numbers">Prev</a>');
+            else arr.push('<span class="page-numbers inactive">Prev</span>');
+
             arr.push('<span class="page-numbers inactive">' + page + '</span>');
-            if (page === totalPage) {
-                arr.push('<span class="page-numbers inactive">Next</span>');
-            } else if (page < totalPage) {
-                arr.push('<a href="' + href + (parseInt(page) + 1) + '" class="page-numbers">Next</a>');
-            }
+
+            if (page < totalPage) arr.push('<a href="' + href + (parseInt(page) + 1) + '" class="page-numbers">Next</a>');
+            else arr.push('<span class="page-numbers inactive">Next</span>');
+
             $page.html(arr.join('\n'));
-            $page.parent().delay(300).fadeIn('slow');
+            $page.parent().delay(600).fadeIn('slow');
         },
         GetEntryExcerptText: function (content) {
             var arr = content.split('\n'), max = 100, result = '', line = '';
@@ -362,7 +359,8 @@
             }
         },
         GetLists: function (page, size, success) {
-            var keyword = helper.GetUrlParam('q'), meta = helper.GetUrlParam('m'), page = page || 1,
+            var keyword = helper.GetUrlParam('q'), meta = helper.GetUrlParam('m'),
+                page = page || parseInt(helper.GetUrlParam('page', 1)),
                 query = (keyword ? keyword + '+' : '') + 'path:/tag' + (meta ? '/' + meta : ''),
                 api = searchUrl + '&q=' + query + '+' + repoExtn + '&page=' + page + '&per_page=' + size;
             if (Cache.isSupported()) {
@@ -491,9 +489,9 @@
             $('input, textarea, select').placeholder();
         },
         ScrollHandler: function () {
-            var goTopButton = $("#go-top"), maxTime = 4, counter = 0, lock = false,
+            var goTopButton = $("#go-top"), loadTimes = 4, lock = false,
                 minHeight = helper.IsMobile() ? 100 : 10,
-                page = (parseInt(helper.GetUrlParam('page')) || 1) + 1;
+                page = parseInt(helper.GetUrlParam('page', 1));
             return function () {
                 var scrollTop = $WIN.scrollTop();
                 if (scrollTop >= 700) goTopButton.fadeIn(400)
@@ -502,19 +500,19 @@
                 //console.log($(document).height() - $WIN.height() - scrollTop);
                 if (($(document).height() - $WIN.height() - scrollTop) > minHeight) return;
                 lock = true;
-                counter++;
+                loadTimes--;
+                page++;
                 index.Loader.Show(function () {
-                    index.GetLists(page, 4, function (lists) {
+                    index.GetLists(page, 6, function (lists) {
                         if (lists['incomplete_results'] === true || lists.items.length === 0) {
                             $('.no-data').show();
                             return;
                         }
                         index.GetArticles(lists);
                         index.Loader.Hide(function () {
-                            if (counter >= maxTime) {
-                                index.GetPagination(lists['total_count'], page + 1, 4);
+                            if (loadTimes <= 0) {
+                                index.GetPagination(lists['total_count'], page, 6);
                             } else {
-                                page++;
                                 lock = false;
                             }
                         });
@@ -529,7 +527,7 @@
 
     index.Preloader(function () {
         index.BodyBgLoader();
-        index.GetLists(helper.GetUrlParam('page'), helper.IsMobile() ? 4 : 8, function (lists) {
+        index.GetLists(0, 6, function (lists) {
             index.Loader.Hide(function () {
                 if (lists['incomplete_results'] === true || lists.items.length === 0) {
                     articleContainer.html(
