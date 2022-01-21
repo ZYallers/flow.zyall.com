@@ -287,7 +287,7 @@
                 result += line + ' ';
                 if (result.length >= max) break;
             }
-            return result.replace(/[`*]/gi, '').trim() + '...';
+            return result.substring(0, max).replace(/[`*]/gi, '').trim() + '...';
         },
         GetArticleAnnotation: function (content) {
             var arr = content.split('\n');
@@ -494,7 +494,7 @@
                 page = parseInt(helper.GetUrlParam('page', 1));
             return function () {
                 var scrollTop = $WIN.scrollTop();
-                if (scrollTop >= 700) goTopButton.fadeIn(400)
+                if (scrollTop >= 700) goTopButton.fadeIn(400);
                 else goTopButton.fadeOut(400);
                 if (lock) return;
                 //console.log($(document).height() - $WIN.height() - scrollTop);
@@ -527,6 +527,12 @@
 
     index.Preloader(function () {
         index.BodyBgLoader();
+        index.SuperFish();
+        index.MobileNav();
+        index.MenuSearch();
+        index.Placeholder();
+        index.SmoothScroll();
+        index.BackToTop();
         index.GetLists(0, 6, function (lists) {
             index.Loader.Hide(function () {
                 if (lists['incomplete_results'] === true || lists.items.length === 0) {
@@ -541,11 +547,13 @@
                 index.GetArticles(lists);
             });
         });
-        index.SuperFish();
-        index.MobileNav();
-        index.MenuSearch();
-        index.SmoothScroll();
-        index.Placeholder();
-        index.BackToTop();
     });
 })(jQuery);
+
+var _hmt = _hmt || [];
+setTimeout(function(){
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?5cb1fb48a3febacb9b47f96a5cf3959b";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+}, 3000);

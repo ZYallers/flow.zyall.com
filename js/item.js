@@ -211,6 +211,16 @@
                 title: ts.toUpperCase() + '：',
                 message: msg
             });
+        },
+        Throttle: function (fn, wait) {
+            var time = Date.now();
+            return function () {
+                var n = Date.now()
+                if ((time + wait - n) < 0) {
+                    time = n;
+                    fn();
+                }
+            }
         }
     };
     var $WIN = $(window),
@@ -230,13 +240,23 @@
     var item = {
         Loader: {
             Show: function (fn) {
-                $('.preloader').delay(300).fadeIn('slow', function () {
-                    $('html,body').stop().animate({scrollTop: $(document).height()}, 'slow', 'swing').promise().done(fn);
-                });
+                $('.preloader').delay(300).fadeIn('slow', fn);
             },
-            Hide: function (fn, wait) {
-                $('.preloader').delay(wait || 600).fadeOut('slow', fn);
+            Hide: function (fn) {
+                $('.preloader').delay(600).fadeOut('slow', fn);
             }
+        },
+        BodyBgLoader: function () {
+            $('body').css({
+                'background-image': 'url(' + Photo.Rand(1) + ')',
+                'transition': 'transform .3s ease-out',
+                'background-color': 'transparent',
+                'background-size': 'cover',
+                'background-position': 'center center',
+                'background-repeat': 'no-repeat',
+                'background-attachment': 'fixed',
+                '-webkit-animation': 'fadein .5s ease-out 0s forwards'
+            });
         },
         Preloader: function (fn) {
             $WIN.on('load', function () {
@@ -309,8 +329,7 @@
                 var target = this.hash, $target = $(target);
                 e.preventDefault();
                 e.stopPropagation();
-                $('html, body').stop().animate({'scrollTop': $target.offset().top}, cfg.scrollDuration, 'swing')
-                    .promise().done(function () {
+                $('html').stop().animate({'scrollTop': $target.offset().top}, cfg.scrollDuration, 'swing').promise().done(function () {
                     // check if menu is open
                     if ($('body').hasClass('menu-is-open')) {
                         $('#header-menu-trigger').trigger('click');
@@ -322,43 +341,16 @@
         Placeholder: function () {
             $('input, textarea, select').placeholder();
         },
-        BackToTop: function () {
-            var actualScrollHandler = function () {
-                var goTopButton = $("#go-top");
-                return function () {
-                    if (SoHuCsIsNeed && !SoHuCsHaveLoaded) {
-                        item.SoHuCsScroll();
-                    }
-                    if ($WIN.scrollTop() >= 500) {
-                        goTopButton.fadeIn(400);
-                    } else {
-                        goTopButton.fadeOut(400);
-                    }
-                }
-            };
-            var throttle = function (fn, wait) {
-                var time = Date.now();
-                return function () {
-                    var n = Date.now()
-                    if ((time + wait - n) < 0) {
-                        time = n;
-                        fn();
-                    }
-                }
-            };
-            $WIN.on('scroll', throttle(actualScrollHandler(), 100));
+        ScrollHandler: function() {
+            var goTopButton = $("#go-top");
+            return function () {
+                if ($WIN.scrollTop() >= 700) goTopButton.fadeIn(400);
+                else goTopButton.fadeOut(400);
+                if (SoHuCsIsNeed && !SoHuCsHaveLoaded) item.SoHuCsScroll();
+            }
         },
-        BodyBgLoader: function () {
-            $('body').css({
-                'background-image': 'url(' + Photo.Rand(1) + ')',
-                'transition': 'transform .3s ease-out',
-                'background-color': 'transparent',
-                'background-size': 'cover',
-                'background-position': 'center center',
-                'background-repeat': 'no-repeat',
-                'background-attachment': 'fixed',
-                '-webkit-animation': 'fadein .5s ease-out 0s forwards'
-            });
+        BackToTop: function () {
+            $WIN.on('scroll', helper.Throttle(this.ScrollHandler(), 100));
         },
         ParseContent: function (resp) {
             var size = resp["size"], ch = Base64.decode(resp["content"]), st = ch.split('\n');
@@ -388,8 +380,9 @@
             if (date !== '') $("#item-date").removeClass('hide').text(date);
             if (meta !== '') $('#item-meta').attr("href", "/?m=" + meta).text(meta);
             showdown.setFlavor('github');
-            var converter = new showdown.Converter(), $itemBody = $('#item-body'), $bodyH1 = $itemBody.find('h1');
+            var converter = new showdown.Converter(), $itemBody = $('#item-body');
             $itemBody.html(converter.makeHtml(ch));
+            var $bodyH1 = $itemBody.find('h1');
             if ($bodyH1.length > 0) $bodyH1.eq(0).hide();
             if (window.prettyPrint) {
                 $('pre').addClass("prettyprint linenums");
@@ -480,12 +473,20 @@
 
     item.Preloader(function () {
         item.BodyBgLoader();
-        item.GetContent(item.SohuChangYan);
         item.SuperFish();
         item.MobileNav();
         item.Search();
-        item.SmoothScroll();
         item.Placeholder();
+        item.SmoothScroll();
         item.BackToTop();
+        item.GetContent(item.SohuChangYan);
     });
 })(jQuery);
+
+var _hmt = _hmt || [];
+setTimeout(function(){
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?5cb1fb48a3febacb9b47f96a5cf3959b";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+}, 3000);

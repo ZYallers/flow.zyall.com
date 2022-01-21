@@ -1,7 +1,7 @@
 /* webfonts and iconfonts */
-@import url("//cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css");
-@import url("//hxsupload-oss.hxsapp.com/lib/flow/css/micons/css/micons.min.css");
-@import url("//hxsupload-oss.hxsapp.com/lib/flow/css/fonts.min.css");
+@import url("https://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css");
+@import url("https://hxsupload-oss.hxsapp.com/lib/flow/css/micons/css/micons.min.css");
+@import url("https://hxsupload-oss.hxsapp.com/lib/flow/css/fonts.min.css");
 
 /* base style overrides*/
 html{font-size:10px}
@@ -155,7 +155,7 @@ header a{border:none}
 
 /* header logo */
 header .logo{position:absolute;left:35px;top:6px;z-index:601}
-header .logo a{display:block;margin:0;padding:0;outline:0;border:none;width:60px;height:60px;background:url("//hxsupload-oss.hxsapp.com/lib/flow/image/logo.png") no-repeat center;background-size:60px 60px;font:0/0 a;text-shadow:none;color:transparent;-moz-transition:all 0.5s ease-in-out;-o-transition:all 0.5s ease-in-out;-webkit-transition:all 0.5s ease-in-out;-ms-transition:all 0.5s ease-in-out;transition:all 0.5s ease-in-out}
+header .logo a{display:block;margin:0;padding:0;outline:0;border:none;width:60px;height:60px;background:url("https://hxsupload-oss.hxsapp.com/lib/flow/image/logo.png") no-repeat center;background-size:60px 60px;font:0/0 a;text-shadow:none;color:transparent;-moz-transition:all 0.5s ease-in-out;-o-transition:all 0.5s ease-in-out;-webkit-transition:all 0.5s ease-in-out;-ms-transition:all 0.5s ease-in-out;transition:all 0.5s ease-in-out}
 
 
 /* responsive:header logo */
