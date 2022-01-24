@@ -505,7 +505,9 @@
                 index.Loader.Show(function () {
                     index.GetLists(page, 6, function (lists) {
                         if (lists['incomplete_results'] === true || lists.items.length === 0) {
-                            $('.no-data').show();
+                            index.Loader.Hide(function () {
+                                $('.no-data').show();
+                            });
                             return;
                         }
                         index.GetArticles(lists);
