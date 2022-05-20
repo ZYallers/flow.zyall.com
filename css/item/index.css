@@ -248,7 +248,6 @@ header .logo a{display:block;margin:0;padding:0;outline:0;border:none;width:60px
 /* footer */
 footer{font-size:1.5rem;color:#8E8E8E}
 footer a,footer a:visited{color:#000000}
-footer [class*="col-"]{margin-bottom:1.2rem}
 footer h4{border-bottom:1px solid rgba(0,0,0,0.1);padding-bottom:1.2rem;margin-bottom:1.5rem}
 footer ul{margin-left:0}
 footer ul li{padding-left:0}
@@ -263,8 +262,10 @@ footer ul li{padding-left:0}
 .footer-main .footer-subscribe .subscribe-form .subscribe-message{font-family:"roboto-bold",sans-serif;font-size:1.4rem;color:#000000}
 .footer-main .footer-subscribe .subscribe-form .subscribe-message i{color:#000000;margin-right:5px}
 .footer-bottom{margin-top:3rem;text-align:center}
+.footer-bottom .copyright{font:bold 1.2rem sans-serif;color:#8E8E8E;padding-bottom:1rem}
+.footer-bottom .copyright span a{color:#8E8E8E}
 .footer-bottom .copyright span{display:inline-block}
-.footer-bottom .copyright span::after{content:"|";display:inline-block;padding:0 1rem 0 1.2rem;color:rgba(0,0,0,0.2)}
+.footer-bottom .copyright span::after{content:"|";display:inline-block;padding:0 0.6rem 0 1.2rem;color:#8E8E8E}
 .footer-bottom .copyright span:last-child::after{display:none}
 
 
