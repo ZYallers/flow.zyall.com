@@ -504,7 +504,7 @@
                 loadTimes--;
                 page++;
                 index.Loader.Show(function () {
-                    index.GetLists(page, 6, function (lists) {
+                    index.GetLists(page, 8, function (lists) {
                         if (lists['incomplete_results'] === true || lists.items.length === 0) {
                             index.Loader.Hide(function () {
                                 $('.no-data').show();
