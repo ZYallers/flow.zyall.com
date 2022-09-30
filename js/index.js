@@ -306,6 +306,7 @@
                 title: item['name'].slice(0, -3),
                 meta: meta.toUpperCase(),
                 metalink: '/?m=' + meta,
+                intro:'',
                 img: ''
             };
             var textJson = JSON.parse(text), content = Base64.decode(textJson['content']);
@@ -314,7 +315,7 @@
             if (arr.length > 0) article.date = arr[0].trim();
             if (arr.length > 2) article.img = arr[2].trim();
             if (article.img === '') article.img = Photo.Rand(2);
-            article.intro = this.GetEntryExcerptText(content);
+            //article.intro = this.GetEntryExcerptText(content);
             return article;
         },
         AppendArticle: function (item, text) {
@@ -354,7 +355,7 @@
                                 }
                             });
                         }
-                    }, cursor * 150);
+                    }, cursor * 100);
                 })(lists.items[cursor], cursor);
             }
         },
@@ -535,7 +536,7 @@
         index.Placeholder();
         index.SmoothScroll();
         index.BackToTop();
-        index.GetLists(0, 6, function (lists) {
+        index.GetLists(0, 8, function (lists) {
             index.Loader.Hide(function () {
                 if (lists['incomplete_results'] === true || lists.items.length === 0) {
                     articleContainer.html(
