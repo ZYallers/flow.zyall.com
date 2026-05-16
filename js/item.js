@@ -100,7 +100,7 @@
         }
     };
     var Photo = {
-        backgroundBaseUrl: 'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/',
+        backgroundBaseUrl: '/images/background/',
         background: [
             'IKMsqwyaR6qN0kq48STw_annapurna.jpg',
             'photo-1432256851563-20155d0b7a39.jpeg',
@@ -116,7 +116,7 @@
             'stock-photo-173565125.jpg',
             'wdXqHcTwSTmLuKOGz92L_Landscape.jpg'
         ],
-        sectionBaseUrl: 'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/',
+        sectionBaseUrl: '/images/section/',
         section: [
             'photo-1422207258071-70754198c4a2.jpeg',
             'photo-1422207258071-70754198cde3.png',
