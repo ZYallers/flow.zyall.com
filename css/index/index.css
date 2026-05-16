@@ -1,7 +1,7 @@
 /* webfonts and iconfonts */
 @import url("https://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css");
-@import url("css/micons/css/micons.min.css");
-@import url("css/fonts.min.css");
+@import url("/css/micons/css/micons.min.css");
+@import url("/css/fonts.min.css");
 
 /* base style overrides*/
 html{font-size:10px}
