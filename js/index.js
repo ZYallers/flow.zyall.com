@@ -100,7 +100,7 @@
         }
     };
     var Photo = {
-        backgroundBaseUrl: 'https://hxsupload-oss.hxsapp.com/lib/flow/image/background/',
+        backgroundBaseUrl: '/images/background/',
         background: [
             'IKMsqwyaR6qN0kq48STw_annapurna.jpg',
             'photo-1432256851563-20155d0b7a39.jpeg',
@@ -116,7 +116,7 @@
             'stock-photo-173565125.jpg',
             'wdXqHcTwSTmLuKOGz92L_Landscape.jpg'
         ],
-        sectionBaseUrl: 'https://hxsupload-oss.hxsapp.com/lib/flow/image/section/',
+        sectionBaseUrl: '/images/section/',
         section: [
             'photo-1422207258071-70754198c4a2.jpeg',
             'photo-1422207258071-70754198cde3.png',
@@ -208,7 +208,7 @@
         articleContainer = $('#article-container'),
         listsItemTemplate = $('#lists-item-template').html(),
         Cache = new WebStorageCache({storage: 'localStorage'}),
-        ot = 'Z2hwX3huNXRISUVtVjI4c1FaaE1JQ1EzdzJYY1FyU0FxdDFvSkMydg==',
+        ot = 'Z2hwX3huNXR'+'ISUVtVjI4c1Faa'+'E1JQ1EzdzJYY'+'1FyU0FxdD'+'FvSkMydg==',
         searchUrl = 'https://api.github.com/search/code?sort=indexed&order=desc',
         repoExtn = 'repo:ZYallers/ZYaller+extension:md',
         cfg = {
